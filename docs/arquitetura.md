@@ -27,22 +27,39 @@ O aplicativo administrativo é uma solução complementar ao aplicativo principa
 ### Arquitetura Geral
 ```mermaid
 graph TD
-    A[App Admin] --> B[Autenticação]
-    A --> C[Gestão de Moderação]
-    A --> D[Gestão de Usuários]
-    A --> E[Gestão de Eventos]
+    subgraph "Projeto Admin Auth"
+        AA[App Admin] --> Auth[Autenticação]
+        AA --> GM[Gestão de Moderadores]
+        
+        Auth --> A1[Login/Registro]
+        Auth --> A2[2FA]
+        Auth --> A3[Roles/Permissões]
+        
+        GM --> M1[Aprovação]
+        GM --> M2[Monitoramento]
+        GM --> M3[Auditoria]
+    end
     
-    C --> C1[Moderação de Denúncias]
-    C --> C2[Moderação do Fórum]
-    C --> C3[Moderação de Doações]
-    C --> C4[Moderação de Comentários]
+    subgraph "Projeto Principal"
+        AA --> GC[Gestão de Conteúdo]
+        AA --> GU[Gestão de Usuários]
+        AA --> GE[Gestão de Eventos]
+        
+        GC --> C1[Moderação de Denúncias]
+        GC --> C2[Moderação do Fórum]
+        GC --> C3[Moderação de Doações]
+        GC --> C4[Moderação de Comentários]
+        
+        GU --> U1[Validação de Perfis]
+        GU --> U2[Gestão de Banimentos]
+        
+        GE --> E1[Aprovação de Eventos]
+        GE --> E2[Edição de Eventos]
+    end
     
-    D --> D1[Validação de Perfis]
-    D --> D2[Gestão de Banimentos]
-    D --> D3[Gestão de Moderadores]
-    
-    E --> E1[Aprovação de Eventos]
-    E --> E2[Edição de Eventos]
+    Auth -.-> GC[Validação de Permissões]
+    Auth -.-> GU[Validação de Permissões]
+    Auth -.-> GE[Validação de Permissões]
 ```
 
 ## Autenticação e Controle de Acesso
@@ -60,20 +77,36 @@ graph TD
    - Gestão de eventos
    - Visualização de relatórios básicos
 
-### Fluxo de Registro de Moderadores
+### Fluxo de Registro e Autenticação
 ```mermaid
 sequenceDiagram
     participant M as Moderador
-    participant A as App Admin
-    participant F as Firebase
-    participant AD as Admin
+    participant AA as App Admin
+    participant Auth as Admin Auth Firebase
+    participant Main as Main App Firebase
+    participant AD as Super Admin
 
-    M->>A: Acessa tela de registro
-    M->>A: Preenche dados de cadastro
-    A->>F: Cria usuário pendente
-    F->>AD: Notifica novo registro
-    AD->>F: Aprova/Rejeita registro
-    F->>M: Notifica resultado
+    M->>AA: Acessa tela de registro
+    M->>AA: Preenche dados de cadastro
+    AA->>Auth: Cria conta no projeto admin-auth
+    Auth->>Auth: Salva dados do moderador
+    Auth->>AD: Notifica novo registro
+    
+    AD->>Auth: Revisa e aprova registro
+    Auth->>Auth: Atualiza status para aprovado
+    Auth->>Auth: Configura Custom Claims
+    
+    Auth-->>Main: Sincroniza permissões via Cloud Functions
+    Main->>Main: Configura acesso ao conteúdo
+    
+    Auth->>M: Notifica aprovação
+    
+    Note over M,Main: Após Aprovação
+    M->>AA: Login com 2FA
+    AA->>Auth: Valida credenciais
+    Auth->>Auth: Verifica status e permissões
+    Auth-->>Main: Obtém token de acesso
+    Main->>AA: Permite acesso aos recursos
 ```
 
 ### Estados do Moderador
@@ -89,18 +122,22 @@ stateDiagram-v2
 
 ## Modelo de Dados
 
-### Novas Collections no Firebase
+### Modelo de Dados
 
-#### admin_users
+#### Collections no Projeto Admin Auth
+
+##### admin_users
 ```javascript
 {
     uid: string,          // ID único do usuário
     email: string,        // Email do usuário
-    role: string,         // "admin" | "moderator"
+    role: string,         // "super_admin" | "admin" | "moderator"
     status: string,       // "pending" | "approved" | "rejected"
     created_at: timestamp,
     approved_at: timestamp,
     approved_by: string,  // UID do admin que aprovou
+    mfa_enabled: boolean, // Status do 2FA
+    last_login: timestamp,
     profile_data: {
         name: string,
         phone: string,
@@ -110,7 +147,7 @@ stateDiagram-v2
 }
 ```
 
-#### moderator_applications
+##### moderator_applications
 ```javascript
 {
     id: string,           // ID único da aplicação
@@ -122,12 +159,33 @@ stateDiagram-v2
     application_data: {
         motivation: string,
         documents: array,
-        // outros dados da aplicação
+        background_check: {
+            status: string,
+            completed_at: timestamp,
+            result: string
+        }
     }
 }
 ```
 
-#### moderation_actions
+##### admin_audit_logs
+```javascript
+{
+    id: string,           // ID único do log
+    admin_id: string,     // Quem realizou a ação
+    action_type: string,  // Tipo de ação administrativa
+    target_type: string,  // Tipo do alvo (usuário, permissão, etc)
+    target_id: string,    // ID do alvo
+    changes: object,      // Mudanças realizadas
+    created_at: timestamp,
+    ip_address: string,   // IP do admin
+    user_agent: string    // Navegador/dispositivo usado
+}
+```
+
+#### Collections no Projeto Principal
+
+##### moderation_actions
 ```javascript
 {
     id: string,           // ID único da ação
@@ -135,19 +193,30 @@ stateDiagram-v2
     action_type: string,  // Tipo de ação realizada
     target_id: string,    // ID do conteúdo moderado
     reason: string,       // Razão da moderação
-    created_at: timestamp
+    severity: string,     // Nível de severidade
+    created_at: timestamp,
+    metadata: {
+        source_project: string,  // Projeto Firebase de origem
+        moderator_role: string   // Role do moderador
+    }
 }
 ```
 
-#### moderation_queue
+##### moderation_queue
 ```javascript
 {
     id: string,           // ID único do item
-    type: string,         // "report" | "verification"
+    type: string,         // "report" | "verification" | "review"
     status: string,       // Status atual
     content_id: string,   // ID do conteúdo
     created_at: timestamp,
-    priority: string      // Prioridade do item
+    priority: string,     // Prioridade do item
+    assigned_to: string,  // ID do moderador designado
+    metadata: {
+        content_type: string,    // Tipo do conteúdo
+        reporter_id: string,     // ID do denunciante
+        category: string         // Categoria da moderação
+    }
 }
 ```
 
@@ -317,16 +386,35 @@ stateDiagram-v2
 
 ## Integrações
 
-### Firebase
-- Authentication
-- Cloud Firestore
-- Cloud Storage
-- Cloud Messaging
+### Firebase Projects
 
-### Aplicativo Principal
-- Compartilhamento de dados
-- Notificações
+#### 1. Admin Authentication Project (admin-auth)
+- **Objetivo**: Gerenciar autenticação e dados dos moderadores
+- **Serviços**:
+  - Authentication (autenticação dos moderadores)
+  - Cloud Firestore (dados dos moderadores)
+  - Cloud Functions (lógica de aprovação)
+  - Cloud Messaging (notificações para moderadores)
+
+#### 2. Main Application Project (main-app)
+- **Objetivo**: Gerenciar conteúdo e dados do aplicativo principal
+- **Serviços**:
+  - Cloud Firestore (dados do aplicativo)
+  - Cloud Storage (arquivos e mídia)
+  - Cloud Functions (lógica de moderação)
+  - Cloud Messaging (notificações para usuários)
+
+### Comunicação entre Projetos
+- Uso de Custom Claims para definir roles dos moderadores
+- Service accounts para comunicação segura entre projetos
+- Cloud Functions para sincronização de dados críticos
+- Event triggers para manter consistência
+
+### Integração com Aplicativo Principal
+- Compartilhamento de dados via APIs seguras
+- Notificações bidirecionais
 - Atualizações em tempo real
+- Websockets para comunicação em tempo real
 
 ## Considerações Técnicas
 
@@ -336,10 +424,22 @@ stateDiagram-v2
 - Material Design para UI
 
 ### Segurança
-- Autenticação em dois fatores
-- Controle de acesso baseado em roles
-- Logging de ações
-- Backup de dados
+
+#### Projeto de Autenticação (admin-auth)
+- Autenticação em dois fatores obrigatória
+- IP Whitelisting para acesso administrativo
+- Logging detalhado de todas as ações administrativas
+- Backup automático dos dados de moderadores
+- Rate limiting para tentativas de login
+- Monitoramento de atividades suspeitas
+
+#### Projeto Principal (main-app)
+- Controle de acesso granular baseado em roles
+- Criptografia de dados sensíveis
+- Audit logs para todas as ações de moderação
+- Backup regular dos dados do aplicativo
+- Validação de tokens entre projetos
+- Sanitização de dados em tempo real
 
 ### Performance
 - Paginação de listas
@@ -364,6 +464,9 @@ lib/
 ├── core/                   # Núcleo do aplicativo
 │   ├── constants/            # Constantes globais
 │   ├── errors/              # Classes de erro
+│   ├── firebase/           # Configurações Firebase
+│   │   ├── admin_auth/     # Config projeto admin
+│   │   └── main_app/      # Config projeto principal
 │   └── utils/              # Utilitários
 │
 ├── config/                 # Configurações
@@ -409,7 +512,9 @@ lib/
 │
 ├── services/             # Serviços
 │   ├── auth_service.dart
-│   ├── firebase_service.dart
+│   ├── firebase/
+│   │   ├── admin_auth_service.dart
+│   │   └── main_app_service.dart
 │   └── storage_service.dart
 │
 ├── shared/              # Componentes compartilhados
