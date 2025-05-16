@@ -1,19 +1,28 @@
 import 'package:firebase_core/firebase_core.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../core/firebase/admin_auth/options.dart';
+import '../core/firebase/main_app/options.dart';
 
 class FirebaseConfig {
   static Future<void> init() async {
-    await dotenv.load();
-
+    // Inicializa o projeto de autenticação de administradores
     await Firebase.initializeApp(
-      options: FirebaseOptions(
-        apiKey: dotenv.env['FIREBASE_API_KEY'] ?? '',
-        authDomain: dotenv.env['FIREBASE_AUTH_DOMAIN'] ?? '',
-        projectId: dotenv.env['FIREBASE_PROJECT_ID'] ?? '',
-        storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? '',
-        messagingSenderId: dotenv.env['FIREBASE_MESSAGING_SENDER_ID'] ?? '',
-        appId: dotenv.env['FIREBASE_APP_ID'] ?? '',
-      ),
+      name: 'admin-auth',
+      options: AdminAuthFirebaseOptions.currentPlatform,
     );
+
+    // Inicializa o projeto principal do aplicativo
+    await Firebase.initializeApp(
+      name: 'main-app',
+      options: MainAppFirebaseOptions.currentPlatform,
+    );
+  }
+
+  // Helpers para obter as instâncias do Firebase
+  static FirebaseApp getAdminAuth() {
+    return Firebase.app('admin-auth');
+  }
+
+  static FirebaseApp getMainApp() {
+    return Firebase.app('main-app');
   }
 }
