@@ -1,6 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
-import '../firebase_options_main_app.dart';  // Configurações do projeto principal
-import '../firebase_options_admin_auth.dart';  // Configurações do projeto admin
+import '../core/firebase/admin_auth/options.dart';
+import '../core/firebase/main_app/options.dart';
 
 class FirebaseConfig {
   static Future<void> init() async {

@@ -5,7 +5,7 @@ import 'package:flutter/foundation.dart'
     show defaultTargetPlatform, kIsWeb, TargetPlatform;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-/// Firebase options for the main application project
+/// Firebase options for main application project
 class MainAppFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
