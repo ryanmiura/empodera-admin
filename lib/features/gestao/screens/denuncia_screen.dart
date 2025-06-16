@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_core/firebase_core.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import '../../../shared/widgets/custom_drawer.dart';
+import 'denuncia_info.dart';
 
 class DenunciaScreen extends StatefulWidget {
   const DenunciaScreen({super.key});
@@ -12,33 +12,8 @@ class DenunciaScreen extends StatefulWidget {
 }
 
 class _DenunciaScreenState extends State<DenunciaScreen> {
-  final FirebaseFirestore _primaryFirestore = FirebaseFirestore.instance;
-  late final FirebaseFirestore _secondaryFirestore;
-  bool _showSecondaryDatabase = false;
-  bool _secondaryAppInitialized = false;
-  String? _initializationError;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeSecondaryFirestore();
-  }
-
-  Future<void> _initializeSecondaryFirestore() async {
-    try {
-      final secondaryApp = Firebase.app('SecondaryApp');
-      _secondaryFirestore = FirebaseFirestore.instanceFor(app: secondaryApp);
-      setState(() {
-        _secondaryAppInitialized = true;
-      });
-    } catch (e) {
-      setState(() {
-        _secondaryAppInitialized = false;
-        _initializationError = e.toString();
-      });
-      debugPrint('Erro ao acessar SecondaryApp: $e');
-    }
-  }
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  String _filtroStatus = 'todos'; // 'todos', 'pendente', 'resolvido', 'arquivado'
 
   void _handleNavigation(int index) {
     Navigator.pop(context);
@@ -48,13 +23,7 @@ class _DenunciaScreenState extends State<DenunciaScreen> {
 
   Future<void> _atualizarStatusDenuncia(String denunciaId, String novoStatus) async {
     try {
-      final firestore = _showSecondaryDatabase ? _secondaryFirestore : _primaryFirestore;
-
-      await firestore
-          .collection('report')
-          .doc(denunciaId)
-          .update({'status': novoStatus});
-
+      await _firestore.collection('report').doc(denunciaId).update({'status': novoStatus});
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Status atualizado para $novoStatus')),
       );
@@ -68,10 +37,7 @@ class _DenunciaScreenState extends State<DenunciaScreen> {
 
   Future<void> _excluirPost(String postId) async {
     try {
-      final firestore = _showSecondaryDatabase ? _secondaryFirestore : _primaryFirestore;
-
-      await firestore.collection('posts').doc(postId).delete();
-
+      await _firestore.collection('posts').doc(postId).delete();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Post excluído com sucesso')),
       );
@@ -85,10 +51,7 @@ class _DenunciaScreenState extends State<DenunciaScreen> {
 
   Future<void> _ocultarPost(String postId) async {
     try {
-      final firestore = _showSecondaryDatabase ? _secondaryFirestore : _primaryFirestore;
-
-      await firestore.collection('posts').doc(postId).update({'oculto': true});
-
+      await _firestore.collection('posts').doc(postId).update({'oculto': true});
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Post ocultado com sucesso')),
       );
@@ -100,6 +63,15 @@ class _DenunciaScreenState extends State<DenunciaScreen> {
     }
   }
 
+  String _formatarData(Timestamp? timestamp) {
+    if (timestamp == null) return '--';
+    return '${timestamp.toDate().day}/${timestamp.toDate().month}/${timestamp.toDate().year}';
+  }
+
+  String _getFieldValue(Map<String, dynamic> data, String field) {
+    return data[field]?.toString() ?? '--';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -109,92 +81,50 @@ class _DenunciaScreenState extends State<DenunciaScreen> {
       drawer: CustomDrawer(
         onNavigate: _handleNavigation,
       ),
-      floatingActionButton: _secondaryAppInitialized
-          ? FloatingActionButton(
-        onPressed: () {
-          setState(() {
-            _showSecondaryDatabase = !_showSecondaryDatabase;
-          });
-        },
-        child: Icon(_showSecondaryDatabase ? Icons.switch_left : Icons.switch_right),
-        backgroundColor: const Color(0xFF663572),
-      )
-          : null,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(
-                  _showSecondaryDatabase
-                      ? 'Denúncias (Secundário)'
-                      : 'Denúncias ',
-                  style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                    color: const Color(0xFF663572),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                Chip(
-                  label: Text('Secundário'),
-                  backgroundColor: const Color(0xFF663572),
-                  labelStyle: const TextStyle(color: Colors.white),
-                ),
-              ],
+            Text(
+              'Denúncias',
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                color: const Color(0xFF663572),
+                fontWeight: FontWeight.bold,
+              ),
             ),
             const SizedBox(height: 16),
-            Expanded(
-              child: _showSecondaryDatabase && !_secondaryAppInitialized
-                  ? _buildSecondaryAppError()
-                  : _buildDenunciasList(),
+            DropdownButton<String>(
+              value: _filtroStatus,
+              items: const [
+                DropdownMenuItem(value: 'todos', child: Text('Todas denúncias')),
+                DropdownMenuItem(value: 'pendente', child: Text('Pendentes')),
+                DropdownMenuItem(value: 'resolvido', child: Text('Resolvidas')),
+                DropdownMenuItem(value: 'arquivado', child: Text('Arquivadas')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _filtroStatus = value!;
+                });
+              },
             ),
+            const SizedBox(height: 16),
+            Expanded(child: _buildDenunciasList()),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSecondaryAppError() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Icon(Icons.error_outline, color: Colors.red, size: 50),
-          const SizedBox(height: 20),
-          const Text(
-            'Banco secundário não disponível',
-            style: TextStyle(fontSize: 18, color: Colors.red),
-          ),
-          if (_initializationError != null) ...[
-            const SizedBox(height: 10),
-            Text(
-              _initializationError!,
-              style: const TextStyle(fontSize: 14),
-              textAlign: TextAlign.center,
-            ),
-          ],
-          const SizedBox(height: 20),
-          ElevatedButton(
-            onPressed: () => setState(() => _showSecondaryDatabase = false),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF663572),
-            ),
-            child: const Text('Voltar para o banco principal'),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildDenunciasList() {
+    Query query = _firestore.collection('report').orderBy('timestamp', descending: true);
+
+    if (_filtroStatus != 'todos') {
+      query = query.where('status', isEqualTo: _filtroStatus);
+    }
+
     return StreamBuilder<QuerySnapshot>(
-      stream: (_showSecondaryDatabase ? _secondaryFirestore : _primaryFirestore)
-          .collection('report')
-          .where('status', isEqualTo: 'pendente')
-          .orderBy('timestamp', descending: true)
-          .snapshots(),
+      stream: query.snapshots(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(
@@ -211,12 +141,10 @@ class _DenunciaScreenState extends State<DenunciaScreen> {
         }
 
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-          return Center(
+          return const Center(
             child: Text(
-              _showSecondaryDatabase
-                  ? 'Nenhuma denúncia no banco secundário'
-                  : 'Nenhuma denúncia pendente',
-              style: const TextStyle(
+              'Nenhuma denúncia encontrada',
+              style: TextStyle(
                 color: Color(0xFF663572),
                 fontSize: 16,
               ),
@@ -230,93 +158,119 @@ class _DenunciaScreenState extends State<DenunciaScreen> {
             final denuncia = snapshot.data!.docs[index];
             final data = denuncia.data() as Map<String, dynamic>;
             final postId = data['postId'];
+            final status = data['status'] ?? 'pendente';
+            Color statusColor = Colors.grey;
 
-            return Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(vertical: 8),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(16),
-                title: Text(
-                  postId != null
-                      ? 'Post ID: $postId'
-                      : 'Denúncia ID: ${denuncia.id}',
-                  style: const TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF663572),
+            if (status == 'pendente') statusColor = Colors.orange;
+            else if (status == 'resolvido') statusColor = Colors.green;
+            else if (status == 'arquivado') statusColor = Colors.blue;
+
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DenunciaInfoScreen(
+                      denunciaId: denuncia.id,
+                    ),
                   ),
+                );
+              },
+              child: Card(
+                elevation: 2,
+                margin: const EdgeInsets.symmetric(vertical: 8),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 8),
-                    if (data['motivo'] != null)
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        'Motivo: ${data['motivo']}',
+                        postId != null ? 'Post ID: $postId' : 'Denúncia ID: ${denuncia.id}',
                         style: const TextStyle(
-                          color: Colors.black87,
-                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF663572),
                         ),
                       ),
-                    const SizedBox(height: 4),
-                    if (data['timestamp'] != null)
+                      const SizedBox(height: 8),
                       Text(
-                        'Data: ${(data['timestamp'] as Timestamp).toDate().toString().split('.')[0]}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
+                        'Motivo: ${_getFieldValue(data, 'motivo')}',
+                        style: const TextStyle(color: Colors.black87, fontSize: 14),
                       ),
-                    if (data['userId'] != null) ...[
                       const SizedBox(height: 4),
                       Text(
-                        'Denunciante: ${data['userId']}',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.grey,
-                        ),
+                        'Data: ${_formatarData(data['timestamp'] as Timestamp?)}',
+                        style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Denunciante: ${_getFieldValue(data, 'userId')}',
+                        style: const TextStyle(fontSize: 14, color: Colors.black87),
+                      ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          const Text(
+                            'Status: ',
+                            style: TextStyle(fontSize: 14, color: Colors.black87),
+                          ),
+                          Text(
+                            status,
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: statusColor,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          PopupMenuButton<String>(
+                            icon: const Icon(
+                              Icons.more_vert,
+                              color: Color(0xFF663572),
+                            ),
+                            onSelected: (value) async {
+                              if (value == 'excluir' && postId != null) {
+                                await _excluirPost(postId);
+                                await _atualizarStatusDenuncia(denuncia.id, 'resolvido');
+                              } else if (value == 'ocultar' && postId != null) {
+                                await _ocultarPost(postId);
+                                await _atualizarStatusDenuncia(denuncia.id, 'resolvido');
+                              } else {
+                                await _atualizarStatusDenuncia(denuncia.id, value);
+                              }
+                            },
+                            itemBuilder: (BuildContext context) => [
+                              const PopupMenuItem<String>(
+                                value: 'resolvido',
+                                child: Text('Marcar como resolvido'),
+                              ),
+                              const PopupMenuItem<String>(
+                                value: 'arquivado',
+                                child: Text('Arquivar denúncia'),
+                              ),
+                              if (postId != null) ...[
+                                const PopupMenuItem<String>(
+                                  value: 'excluir',
+                                  child: Text('Excluir post'),
+                                ),
+                                const PopupMenuItem<String>(
+                                  value: 'ocultar',
+                                  child: Text('Ocultar post'),
+                                ),
+                              ],
+                            ],
+                          ),
+                        ],
                       ),
                     ],
-                  ],
-                ),
-                trailing: PopupMenuButton<String>(
-                  icon: const Icon(
-                    Icons.more_vert,
-                    color: Color(0xFF663572),
                   ),
-                  onSelected: (value) async {
-                    if (value == 'excluir' && postId != null) {
-                      await _excluirPost(postId);
-                      await _atualizarStatusDenuncia(denuncia.id, 'resolvido');
-                    } else if (value == 'ocultar' && postId != null) {
-                      await _ocultarPost(postId);
-                      await _atualizarStatusDenuncia(denuncia.id, 'resolvido');
-                    } else {
-                      await _atualizarStatusDenuncia(denuncia.id, value);
-                    }
-                  },
-                  itemBuilder: (BuildContext context) => [
-                    const PopupMenuItem<String>(
-                      value: 'resolvido',
-                      child: Text('Marcar como resolvido'),
-                    ),
-                    const PopupMenuItem<String>(
-                      value: 'arquivado',
-                      child: Text('Arquivar denúncia'),
-                    ),
-                    if (postId != null) ...[
-                      const PopupMenuItem<String>(
-                        value: 'excluir',
-                        child: Text('Excluir post'),
-                      ),
-                      const PopupMenuItem<String>(
-                        value: 'ocultar',
-                        child: Text('Ocultar post'),
-                      ),
-                    ],
-                  ],
                 ),
               ),
             );
