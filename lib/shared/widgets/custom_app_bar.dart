@@ -4,8 +4,7 @@ import '../../features/gestao/screens/usuario_screen.dart';
 import '../../features/moderacao/screens/comentario_screen.dart';
 import '../../features/moderacao/screens/doacao_screen.dart';
 import '../../features/moderacao/screens/forum_screen.dart';
-import '../../services/auth_service.dart';
-import 'custom_drawer.dart';
+
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
