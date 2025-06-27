@@ -73,43 +73,28 @@ class _ForumScreenState extends State<ForumScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Fórum',
-      ),
-      drawer: CustomDrawer(
-        onNavigate: _handleNavigation,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Moderação do Fórum',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: const Color(0xFF663572),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            DropdownButton<String>(
-              value: _filtroStatus,
-              items: const [
-                DropdownMenuItem(value: 'todos', child: Text('Todos os posts')),
-                DropdownMenuItem(value: 'publicado', child: Text('Publicados')),
-                DropdownMenuItem(value: 'oculto', child: Text('Ocultos')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _filtroStatus = value!;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            Expanded(child: _buildPostsList()),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          DropdownButton<String>(
+            value: _filtroStatus,
+            items: const [
+              DropdownMenuItem(value: 'todos', child: Text('Todos os posts')),
+              DropdownMenuItem(value: 'publicado', child: Text('Publicados')),
+              DropdownMenuItem(value: 'oculto', child: Text('Ocultos')),
+            ],
+            onChanged: (value) {
+              setState(() {
+                _filtroStatus = value!;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+          Expanded(child: _buildPostsList()),
+        ],
       ),
     );
   }

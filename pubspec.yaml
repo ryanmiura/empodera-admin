@@ -16,8 +16,15 @@ dependencies:
   cloud_firestore: ^4.15.4
   firebase_database: ^10.3.16
 
+  #
+
+
   # Gerenciamento de variáveis de ambiente
   flutter_dotenv: ^5.1.0
+
+  # Shared Preferences
+  shared_preferences: ^2.2.2
+  url_launcher: ^6.1.0
 
   cupertino_icons: ^1.0.8
 

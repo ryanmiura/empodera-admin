@@ -4,6 +4,7 @@ import '../../features/gestao/screens/usuario_screen.dart';
 import '../../features/moderacao/screens/comentario_screen.dart';
 import '../../features/moderacao/screens/doacao_screen.dart';
 import '../../features/moderacao/screens/forum_screen.dart';
+import '../../features/gestao/screens/settings.dart';
 
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -13,18 +14,21 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool hasNotifications;
   final bool showDrawer;
   final Function(int)? onNavigate;
+  final int? currentIndex;
 
   const CustomAppBar({
     super.key,
-    this.title = 'Moderação',
+    this.title = '',
     this.onMenuPressed,
     this.onNotificationPressed,
     this.hasNotifications = false,
     this.showDrawer = true,
     this.onNavigate,
+    this.currentIndex,
   });
 
   void _handleNavigation(BuildContext context, int index) {
+    if (currentIndex != null && index == currentIndex) return; // Não navega se já está na tela
     Navigator.pop(context); // Fecha o drawer
 
     if (onNavigate != null) {
@@ -49,6 +53,9 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         break;
       case 5:
         screen = const UsuarioScreen();
+        break;
+      case 6:
+        screen = const SettingsPage();
         break;
     }
 

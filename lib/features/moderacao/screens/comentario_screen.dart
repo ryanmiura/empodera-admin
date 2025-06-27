@@ -60,43 +60,28 @@ class _ComentarioScreenState extends State<ComentarioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Comentários',
-      ),
-      drawer: CustomDrawer(
-        onNavigate: _handleNavigation,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Moderação de Comentários',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: const Color(0xFF663572),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            DropdownButton<String>(
-              value: _filtroTipo,
-              items: const [
-                DropdownMenuItem(value: 'todos', child: Text('Todos os comentários')),
-                DropdownMenuItem(value: 'post', child: Text('Comentários em posts')),
-                DropdownMenuItem(value: 'doacao', child: Text('Comentários em doações')),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _filtroTipo = value!;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            Expanded(child: _buildComentariosList()),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          DropdownButton<String>(
+            value: _filtroTipo,
+            items: const [
+              DropdownMenuItem(value: 'todos', child: Text('Todos os comentários')),
+              DropdownMenuItem(value: 'post', child: Text('Comentários em posts')),
+              DropdownMenuItem(value: 'doacao', child: Text('Comentários em doações')),
+            ],
+            onChanged: (value) {
+              setState(() {
+                _filtroTipo = value!;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+          Expanded(child: _buildComentariosList()),
+        ],
       ),
     );
   }

@@ -59,45 +59,29 @@ class _DoacaoScreenState extends State<DoacaoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: const CustomAppBar(
-        title: 'Doações',
-      ),
-      drawer: CustomDrawer(
-        onNavigate: _handleNavigation,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'Moderação de Doações',
-              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                color: const Color(0xFF663572),
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-            const SizedBox(height: 16),
-            DropdownButton<String>(
-              value: _filtroCategoria,
-              items: const [
-                DropdownMenuItem(value: 'todas', child: Text('Todas as categorias')),
-                DropdownMenuItem(value: 'Roupas', child: Text('Roupas')),
-                DropdownMenuItem(value: 'Alimentos', child: Text('Alimentos')),
-                DropdownMenuItem(value: 'Brinquedos', child: Text('Brinquedos')),
-                // Adicione outras categorias conforme necessário
-              ],
-              onChanged: (value) {
-                setState(() {
-                  _filtroCategoria = value!;
-                });
-              },
-            ),
-            const SizedBox(height: 16),
-            Expanded(child: _buildDoacoesList()),
-          ],
-        ),
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SizedBox(height: 16),
+          DropdownButton<String>(
+            value: _filtroCategoria,
+            items: const [
+              DropdownMenuItem(value: 'todas', child: Text('Todas as categorias')),
+              DropdownMenuItem(value: 'Roupas', child: Text('Roupas')),
+              DropdownMenuItem(value: 'Alimentos', child: Text('Alimentos')),
+              DropdownMenuItem(value: 'Brinquedos', child: Text('Brinquedos')),
+            ],
+            onChanged: (value) {
+              setState(() {
+                _filtroCategoria = value!;
+              });
+            },
+          ),
+          const SizedBox(height: 16),
+          Expanded(child: _buildDoacoesList()),
+        ],
       ),
     );
   }
