@@ -87,7 +87,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 Icons.help,
                 "Ajuda",
                     () {
-                  _launchURL('https://coloque-seu-link-aqui.com');
+                  _launchURL('https://empoderasolidario.sh.utfpr.edu.br/');
                 },
               ),
               const SizedBox(height: 20),
