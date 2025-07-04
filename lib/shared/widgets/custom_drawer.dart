@@ -57,37 +57,24 @@ class CustomDrawer extends StatelessWidget {
                               // TODO: Implementar navegação para perfil
                             },
                           ),
-                          ListTile(
-                            leading: const Icon(Icons.logout, color: Colors.red),
-                            title: const Text('Sair', style: TextStyle(color: Colors.red)),
-                            onTap: () {
-                              Navigator.pop(context);
-                              _authService.signOut().then((_) {
-                                Navigator.of(context).pushReplacementNamed('/login');
-                              });
-                            },
-                          ),
                         ],
                       ),
                     );
                   },
                 );
               },
-              child: CircleAvatar(
+              child: const CircleAvatar(
                 backgroundColor: Colors.white,
-                child: Text(
-                  _authService.currentUser?.email?.substring(0, 1).toUpperCase() ?? 'M',
-                  style: const TextStyle(
-                    fontSize: 32,
-                    color: Color(0xFF663572),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                child: Icon(Icons.person, color: Color(0xFF663572)),
               ),
             ),
-            decoration: const BoxDecoration(
-              color: Color(0xFFCDB4D3),
-            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.person_outline, color: Color(0xFF663572)),
+            title: const Text('Perfil'),
+            onTap: () {
+              Navigator.of(context).pushNamed('/profile');
+            },
           ),
           _buildMenuItem(
             icon: Icons.dashboard,

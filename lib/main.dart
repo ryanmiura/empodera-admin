@@ -1,3 +1,4 @@
+import 'features/profile/screens/user_profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -65,20 +66,36 @@ Future<void> _loadEnvironmentVariables() async {
   }
 }
 
-Future<void> _initializeFirebaseApps() async {
-  try {
-    // Inicializa o app principal
-    await Firebase.initializeApp(
-      options: MainAppFirebaseOptions.currentPlatform,
-    );
-    debugPrint('Main Firebase app initialized');
+Future<void>? _firebaseInitFuture;
 
-    // Inicializa o app de autenticação admin
-    await Firebase.initializeApp(
-      name: 'admin-auth',
-      options: AdminAuthFirebaseOptions.currentPlatform,
-    );
-    debugPrint('Admin Auth Firebase app initialized');
+/// Inicializa os apps Firebase de forma segura e única.
+Future<void> _initializeFirebaseApps() {
+  // Garante inicialização única e evita concorrência.
+  return _firebaseInitFuture ??= _doInitializeFirebaseApps();
+}
+
+Future<void> _doInitializeFirebaseApps() async {
+  try {
+    // Inicializa o app principal apenas se ainda não existir.
+    if (!Firebase.apps.any((app) => app.name == '[DEFAULT]')) {
+      await Firebase.initializeApp(
+        options: MainAppFirebaseOptions.currentPlatform,
+      );
+      debugPrint('Main Firebase app initialized');
+    } else {
+      debugPrint('Main Firebase app já inicializado');
+    }
+
+    // Inicializa o app admin-auth apenas se ainda não existir.
+    if (!Firebase.apps.any((app) => app.name == 'admin-auth')) {
+      await Firebase.initializeApp(
+        name: 'admin-auth',
+        options: AdminAuthFirebaseOptions.currentPlatform,
+      );
+      debugPrint('Admin Auth Firebase app initialized');
+    } else {
+      debugPrint('Admin Auth Firebase app já inicializado');
+    }
   } on FirebaseException catch (e) {
     throw Exception('Firebase initialization error: ${e.code} - ${e.message}');
   } catch (e) {
@@ -189,6 +206,7 @@ class MyApp extends StatelessWidget {
     return {
       '/login': (context) => const LoginScreen(),
       '/dashboard': (context) => const DashboardScreen(),
+      '/profile': (context) => const UserProfileScreen(),
     };
   }
 }
