@@ -9,14 +9,22 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+ 
   # Firebase
   firebase_core: ^2.25.4
   firebase_auth: ^4.17.4
   cloud_firestore: ^4.15.4
-  
+  firebase_database: ^10.3.16
+
+  #
+
+
   # Gerenciamento de variáveis de ambiente
   flutter_dotenv: ^5.1.0
+
+  # Shared Preferences
+  shared_preferences: ^2.2.2
+  url_launcher: ^6.1.0
 
   cupertino_icons: ^1.0.8
 
@@ -30,3 +38,13 @@ flutter:
   
   assets:
     - .env
+  # Pasta principal de assets
+    - assets/
+
+  fonts:
+    - family: Crewniverse
+      fonts:
+        - asset: assets/fonts/crewniverse.otf 
+    - family: Inter
+      fonts:
+        - asset: assets/fonts/Inter-VariableFont_opsz,wght.ttf
