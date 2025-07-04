@@ -1,34 +1,35 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../config/firebase_config.dart';
+import 'package:firebase_core/firebase_core.dart';
 import '../features/auth/models/admin_user.dart';
 
 class AuthService {
-  late final FirebaseAuth _auth;
-  late final FirebaseFirestore _firestore;
+  final FirebaseAuth _auth;
+  final FirebaseFirestore _firestore;
 
-  AuthService() {
-    final adminApp = FirebaseConfig.getAdminAuth();
-    _auth = FirebaseAuth.instanceFor(app: adminApp);
-    _firestore = FirebaseFirestore.instanceFor(app: adminApp);
-  }
+  AuthService()
+      : _auth = FirebaseAuth.instanceFor(app: Firebase.app('admin-auth')),
+        _firestore = FirebaseFirestore.instanceFor(app: Firebase.app('admin-auth'));
 
-  // Método para realizar login com email e senha
   Future<AdminUser?> signInWithEmailAndPassword(
-    String email,
-    String password,
-  ) async {
+      String email,
+      String password,
+      ) async {
     try {
+      // Verifica se as credenciais são válidas antes de prosseguir
+      if (email.isEmpty || password.isEmpty) {
+        throw 'Email e senha são obrigatórios';
+      }
+
       final credential = await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+        email: email.trim(),
+        password: password.trim(),
       );
 
       if (credential.user == null) {
-        throw 'Erro ao realizar login';
+        throw 'Autenticação falhou - usuário não retornado';
       }
 
-      // Busca informações adicionais do usuário no Firestore
       final userDoc = await _firestore
           .collection('admin_users')
           .doc(credential.user!.uid)
@@ -39,47 +40,55 @@ class AuthService {
       }
 
       final userData = userDoc.data()!;
-      userData['uid'] = credential.user!.uid;  // Adiciona o UID aos dados
+      userData['uid'] = credential.user!.uid;
 
-      // Verifica o status do usuário
-      final status = userData['status'] as String;
+      final status = userData['status'] as String?;
       if (status != 'approved') {
-        throw 'Usuário não aprovado. Status: $status';
+        throw 'Usuário não aprovado. Status: ${status ?? 'não definido'}';
       }
 
-      // Atualiza o último login
-      await userDoc.reference.update({
+      // Atualiza último login sem esperar conclusão
+      userDoc.reference.update({
         'last_login': FieldValue.serverTimestamp(),
       });
 
       return AdminUser.fromMap(userData);
-
     } on FirebaseAuthException catch (e) {
-      switch (e.code) {
-        case 'user-not-found':
-          throw 'Usuário não encontrado';
-        case 'wrong-password':
-          throw 'Senha incorreta';
-        case 'user-disabled':
-          throw 'Usuário desativado';
-        case 'invalid-credential':
-          throw 'Credenciais inválidas';
-        default:
-          throw 'Erro ao realizar login: ${e.message}';
-      }
+      throw _handleAuthError(e);
     } catch (e) {
-      throw 'Erro ao realizar login: $e';
+      throw 'Erro ao realizar login: ${e.toString()}';
     }
   }
 
-  // Método para obter o usuário atual
+  String _handleAuthError(FirebaseAuthException e) {
+    switch (e.code) {
+      case 'user-not-found': return 'Usuário não encontrado';
+      case 'wrong-password': return 'Senha incorreta';
+      case 'user-disabled': return 'Usuário desativado';
+      case 'invalid-email': return 'Email inválido';
+      case 'invalid-credential': return 'Credenciais inválidas';
+      case 'too-many-requests': return 'Muitas tentativas. Tente mais tarde';
+      default: return 'Erro na autenticação: ${e.message ?? e.code}';
+    }
+  }
+
   User? get currentUser => _auth.currentUser;
 
-  // Método para verificar se há um usuário logado
-  bool get isSignedIn => currentUser != null;
+  bool get isSignedIn {
+    try {
+      return _auth.currentUser != null;
+    } catch (e) {
+      // Removido debugPrint
+      return false;
+    }
+  }
 
-  // Método para realizar logout
   Future<void> signOut() async {
-    await _auth.signOut();
+    try {
+      await _auth.signOut();
+    } catch (e) {
+      // Removido debugPrint
+      rethrow;
+    }
   }
 }
