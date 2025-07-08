@@ -8,6 +8,7 @@ import '../../moderacao/screens/comentario_screen.dart';
 import '../../moderacao/screens/doacao_screen.dart';
 import '../../moderacao/screens/forum_screen.dart';
 import '../../gestao/screens/settings.dart';
+import '../../moderacao/screens/notificacao_screen.dart';
 
 
 class DashboardScreen extends StatefulWidget {
@@ -60,7 +61,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
         title: appBarTitle,
         hasNotifications: _hasNotifications,
         onNotificationPressed: () {
-          // TODO: Implementar navegação para notificações
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => const NotificacaoScreens(),
+            ),
+          );
         },
         onNavigate: (index) {
           setState(() {
