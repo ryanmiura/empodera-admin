@@ -89,6 +89,10 @@ class _NotificacaoScreensState extends State<NotificacaoScreens> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const CustomAppBar(
+        title: 'Notificações',
+        showDrawer: true,
+      ),
       drawer: CustomDrawer(onNavigate: (index) {}),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
