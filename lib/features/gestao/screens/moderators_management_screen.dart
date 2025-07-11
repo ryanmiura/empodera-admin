@@ -48,27 +48,47 @@ class _ModeratorsManagementScreenState extends State<ModeratorsManagementScreen>
             itemCount: moderators.length,
             itemBuilder: (context, index) {
               final moderator = moderators[index];
-              return ListTile(
-                title: Text(moderator.email),
-                subtitle: Text('Status: ${moderator.status}'),
-                trailing: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    IconButton(
-                      icon: const Icon(Icons.check, color: Colors.green),
-                      onPressed: () async {
-                        await _controller.approveModerator(moderator.id);
-                        _refresh();
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close, color: Colors.red),
-                      onPressed: () async {
-                        await _controller.rejectModerator(moderator.id);
-                        _refresh();
-                      },
-                    ),
-                  ],
+              return Card(
+                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                child: Padding(
+                  padding: const EdgeInsets.all(12.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        moderator.nome.isNotEmpty ? moderator.nome : 'Nome não informado',
+                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                      ),
+                      const SizedBox(height: 4),
+                      Text('E-mail: ${moderator.email}'),
+                      Text('Telefone: ${moderator.telefone.isNotEmpty ? moderator.telefone : "Não informado"}'),
+                      Text('UID: ${moderator.id}'),
+                      Text(
+                        'Criado em: ${moderator.createdAt != null ? "${moderator.createdAt!.day.toString().padLeft(2, '0')}/${moderator.createdAt!.month.toString().padLeft(2, '0')}/${moderator.createdAt!.year}" : "Não informado"}',
+                      ),
+                      const SizedBox(height: 4),
+                      Text('Status: ${moderator.status}'),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          IconButton(
+                            icon: const Icon(Icons.check, color: Colors.green),
+                            onPressed: () async {
+                              await _controller.approveModerator(moderator.id);
+                              _refresh();
+                            },
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close, color: Colors.red),
+                            onPressed: () async {
+                              await _controller.rejectModerator(moderator.id);
+                              _refresh();
+                            },
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               );
             },
