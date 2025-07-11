@@ -135,6 +135,11 @@ class CustomDrawer extends StatelessWidget {
                   index: 5,
                 ),
                 _buildMenuItem(
+                  icon: Icons.admin_panel_settings,
+                  title: 'Gerenciar Moderadores',
+                  index: 7,
+                ),
+                _buildMenuItem(
                   icon: Icons.settings,
                   title: 'Configurações',
                   index: 6,

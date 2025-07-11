@@ -3,17 +3,11 @@ import '../core/firebase/admin_auth/options.dart';
 import '../core/firebase/main_app/options.dart';
 
 class FirebaseConfig {
+  /// Inicialização centralizada no main.dart.
+  /// Este método foi descontinuado para evitar inicialização duplicada.
   static Future<void> init() async {
-    // Inicializa o projeto de autenticação de administradores
-    await Firebase.initializeApp(
-      name: 'admin-auth',
-      options: AdminAuthFirebaseOptions.currentPlatform,
-    );
-
-    // Inicializa o projeto principal do aplicativo
-    await Firebase.initializeApp(
-      name: 'main-app',
-      options: MainAppFirebaseOptions.currentPlatform,
+    throw Exception(
+      'A inicialização do Firebase deve ser feita exclusivamente pelo main.dart para garantir ordem e sincronização.'
     );
   }
 

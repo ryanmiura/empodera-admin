@@ -71,16 +71,20 @@ Future<void>? _firebaseInitFuture;
 Completer<void>? _firebaseInitCompleter;
 
 /// Inicializa os apps Firebase de forma segura e única.
-Future<void> _initializeFirebaseApps() {
+Future<void> _initializeFirebaseApps() async {
+  // Mutex simples para garantir inicialização estritamente sequencial
+  while (_firebaseInitCompleter != null && !_firebaseInitCompleter!.isCompleted) {
+    await _firebaseInitCompleter!.future;
+  }
   if (_firebaseInitCompleter != null) return _firebaseInitCompleter!.future;
   _firebaseInitCompleter = Completer<void>();
-  _firebaseInitFuture = _doInitializeFirebaseApps().then((value) {
+  try {
+    await _doInitializeFirebaseApps();
     _firebaseInitCompleter?.complete();
-    return value;
-  }).catchError((e, st) {
+  } catch (e, st) {
     _firebaseInitCompleter?.completeError(e, st);
-    throw e;
-  });
+    rethrow;
+  }
   return _firebaseInitCompleter!.future;
 }
 
