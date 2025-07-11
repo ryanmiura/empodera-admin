@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/services.dart';
 import 'login_screen.dart';
 
@@ -31,13 +32,17 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     try {
       // Criar usuário no Firebase Auth
-      UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      UserCredential userCredential = await FirebaseAuth.instanceFor(
+        app: Firebase.app('admin-auth'),
+      ).createUserWithEmailAndPassword(
         email: _emailController.text.trim(),
         password: _senhaController.text.trim(),
       );
 
       // Adicionar informações adicionais no Firestore
-      await FirebaseFirestore.instance.collection('admin_users').doc(userCredential.user!.uid).set({
+      await FirebaseFirestore.instanceFor(
+        app: Firebase.app('admin-auth'),
+      ).collection('admin_users').doc(userCredential.user!.uid).set({
         'nome': _nomeController.text.trim(),
         'email': _emailController.text.trim(),
         'telefone': _telefoneController.text.trim(),
