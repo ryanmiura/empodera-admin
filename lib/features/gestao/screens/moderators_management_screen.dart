@@ -48,80 +48,159 @@ class _ModeratorsManagementScreenState extends State<ModeratorsManagementScreen>
             itemCount: moderators.length,
             itemBuilder: (context, index) {
               final moderator = moderators[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                  border: Border.all(color: Colors.grey[200]!),
+                ),
                 child: Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: const EdgeInsets.all(20.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        moderator.nome.isNotEmpty ? moderator.nome : 'Nome não informado',
-                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-                      ),
-                      const SizedBox(height: 4),
-                      Text('E-mail: ${moderator.email}'),
-                      Text('Telefone: ${moderator.telefone.isNotEmpty ? moderator.telefone : "Não informado"}'),
-                      Text('UID: ${moderator.id}'),
-                      Text(
-                        'Criado em: ${moderator.createdAt != null ? "${moderator.createdAt!.day.toString().padLeft(2, '0')}/${moderator.createdAt!.month.toString().padLeft(2, '0')}/${moderator.createdAt!.year}" : "Não informado"}',
-                      ),
-                      const SizedBox(height: 4),
-                      Text('Status: ${moderator.status}'),
-                      const SizedBox(height: 16),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(Icons.person, color: Colors.grey[400], size: 32),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  moderator.nome.isNotEmpty ? moderator.nome : 'Nome não informado',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 20,
+                                    color: Colors.black87,
+                                  ),
+                                ),
+                                const SizedBox(height: 2),
+                                Text(
+                                  'UID: ${moderator.id}',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey[500],
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Icon(Icons.email_outlined, color: Colors.grey[400], size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              moderator.email,
+                              style: const TextStyle(fontSize: 14, color: Colors.black87),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Icon(Icons.phone, color: Colors.grey[400], size: 18),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              moderator.telefone.isNotEmpty ? moderator.telefone : "Não informado",
+                              style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Icon(Icons.calendar_today, color: Colors.grey[400], size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            moderator.createdAt != null
+                                ? "${moderator.createdAt!.day.toString().padLeft(2, '0')}/${moderator.createdAt!.month.toString().padLeft(2, '0')}/${moderator.createdAt!.year}"
+                                : "Não informado",
+                            style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Icon(Icons.verified_user, color: Colors.grey[400], size: 18),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Status: ${moderator.status}',
+                            style: TextStyle(fontSize: 14, color: Colors.blue[700], fontWeight: FontWeight.w600),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 22),
+                      Row(
                         children: [
                           Expanded(
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(8),
-                              onTap: () async {
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.green[600],
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              icon: const Icon(Icons.check_circle_outline, size: 20),
+                              label: const Text(
+                                'Aprovar',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              onPressed: () async {
                                 await _controller.approveModerator(moderator.id);
                                 _refresh();
                               },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                margin: const EdgeInsets.only(right: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.green,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  'Aprovar',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
                             ),
                           ),
+                          const SizedBox(width: 16),
                           Expanded(
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(8),
-                              onTap: () async {
+                            child: ElevatedButton.icon(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red[600],
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                padding: const EdgeInsets.symmetric(vertical: 14),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                              icon: const Icon(Icons.cancel_outlined, size: 20),
+                              label: const Text(
+                                'Rejeitar',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              onPressed: () async {
                                 await _controller.rejectModerator(moderator.id);
                                 _refresh();
                               },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(vertical: 14),
-                                margin: const EdgeInsets.only(left: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                alignment: Alignment.center,
-                                child: const Text(
-                                  'Rejeitar',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
                             ),
                           ),
                         ],
