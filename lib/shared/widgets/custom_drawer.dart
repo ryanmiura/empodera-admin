@@ -11,6 +11,7 @@ class CustomDrawer extends StatelessWidget {
   });
 
   Widget _buildMenuItem({
+    required BuildContext context,
     required IconData icon,
     required String title,
     required int index,
@@ -26,7 +27,10 @@ class CustomDrawer extends StatelessWidget {
           color: Colors.black87,
         ),
       ),
-      onTap: () => onNavigate(index),
+      onTap: () {
+        Navigator.of(context).pop();
+        onNavigate(index);
+      },
     );
   }
 
@@ -77,10 +81,12 @@ class CustomDrawer extends StatelessWidget {
                   leading: const Icon(Icons.person_outline, color: Color(0xFF663572)),
                   title: const Text('Perfil'),
                   onTap: () {
+                    Navigator.of(context).pop();
                     Navigator.of(context).pushNamed('/profile');
                   },
                 ),
                 _buildMenuItem(
+                  context: context,
                   icon: Icons.dashboard,
                   title: 'Dashboard',
                   index: 0,
@@ -98,16 +104,19 @@ class CustomDrawer extends StatelessWidget {
                   ),
                 ),
                 _buildMenuItem(
+                  context: context,
                   icon: Icons.forum,
                   title: 'Fórum',
                   index: 1,
                 ),
                 _buildMenuItem(
+                  context: context,
                   icon: Icons.card_giftcard,
                   title: 'Doações',
                   index: 2,
                 ),
                 _buildMenuItem(
+                  context: context,
                   icon: Icons.comment,
                   title: 'Comentários',
                   index: 3,
@@ -125,21 +134,25 @@ class CustomDrawer extends StatelessWidget {
                   ),
                 ),
                 _buildMenuItem(
+                  context: context,
                   icon: Icons.warning,
                   title: 'Denúncias',
                   index: 4,
                 ),
                 _buildMenuItem(
+                  context: context,
                   icon: Icons.people,
                   title: 'Usuários',
                   index: 5,
                 ),
                 _buildMenuItem(
+                  context: context,
                   icon: Icons.admin_panel_settings,
                   title: 'Gerenciar Moderadores',
                   index: 7,
                 ),
                 _buildMenuItem(
+                  context: context,
                   icon: Icons.settings,
                   title: 'Configurações',
                   index: 6,
