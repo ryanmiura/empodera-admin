@@ -20,7 +20,10 @@ class AdminModeratorsController {
   }
 
   /// Aprova um usuário (status "approved")
-  Future<void> approveModerator(String userId) async {
+  Future<void> approveModerator(String userId, String userRole) async {
+    if (userRole != "admin") {
+      throw Exception("Apenas administradores podem aprovar moderadores.");
+    }
     await _firestore
         .collection(_collection)
         .doc(userId)
@@ -28,7 +31,10 @@ class AdminModeratorsController {
   }
 
   /// Rejeita um usuário (status "rejected")
-  Future<void> rejectModerator(String userId) async {
+  Future<void> rejectModerator(String userId, String userRole) async {
+    if (userRole != "admin") {
+      throw Exception("Apenas administradores podem rejeitar moderadores.");
+    }
     await _firestore
         .collection(_collection)
         .doc(userId)
