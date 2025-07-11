@@ -9,6 +9,7 @@ import '../../moderacao/screens/doacao_screen.dart';
 import '../../moderacao/screens/forum_screen.dart';
 import '../../gestao/screens/settings.dart';
 import '../../moderacao/screens/notificacao_screen.dart';
+import '../../gestao/screens/moderators_management_screen.dart';
 
 
 class DashboardScreen extends StatefulWidget {
@@ -51,6 +52,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
       case 6:
         body = const SettingsPage();
         appBarTitle = 'Configurações';
+        break;
+      case 7:
+        body = const ModeratorsManagementScreen();
+        appBarTitle = 'Moderadores';
         break;
       default:
         body = const DashboardHomePage();
