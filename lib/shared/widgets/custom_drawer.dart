@@ -33,107 +33,145 @@ class CustomDrawer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      child: ListView(
-        padding: EdgeInsets.zero,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          UserAccountsDrawerHeader(
-            accountName: Text(_authService.currentUser?.email ?? 'Moderador'),
-            accountEmail: const Text('Painel de Moderação'),
-            currentAccountPicture: GestureDetector(
-              onTap: () {
-                showModalBottomSheet(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return Container(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          ListTile(
-                            leading: const Icon(Icons.person, color: Color(0xFF663572)),
-                            title: const Text('Meu Perfil'),
-                            onTap: () {
-                              Navigator.pop(context);
-                              // TODO: Implementar navegação para perfil
-                            },
-                          ),
-                        ],
-                      ),
-                    );
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: [
+                UserAccountsDrawerHeader(
+                  accountName: Text(_authService.currentUser?.email ?? 'Moderador'),
+                  accountEmail: const Text('Painel de Moderação'),
+                  currentAccountPicture: GestureDetector(
+                    onTap: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return Container(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                ListTile(
+                                  leading: const Icon(Icons.person, color: Color(0xFF663572)),
+                                  title: const Text('Meu Perfil'),
+                                  onTap: () {
+                                    Navigator.pop(context);
+                                    // TODO: Implementar navegação para perfil
+                                  },
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      );
+                    },
+                    child: const CircleAvatar(
+                      backgroundColor: Colors.white,
+                      child: Icon(Icons.person, color: Color(0xFF663572)),
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.person_outline, color: Color(0xFF663572)),
+                  title: const Text('Perfil'),
+                  onTap: () {
+                    Navigator.of(context).pushNamed('/profile');
                   },
-                );
-              },
-              child: const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.person, color: Color(0xFF663572)),
-              ),
+                ),
+                _buildMenuItem(
+                  icon: Icons.dashboard,
+                  title: 'Dashboard',
+                  index: 0,
+                ),
+                const Divider(),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'MODERAÇÃO',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                _buildMenuItem(
+                  icon: Icons.forum,
+                  title: 'Fórum',
+                  index: 1,
+                ),
+                _buildMenuItem(
+                  icon: Icons.card_giftcard,
+                  title: 'Doações',
+                  index: 2,
+                ),
+                _buildMenuItem(
+                  icon: Icons.comment,
+                  title: 'Comentários',
+                  index: 3,
+                ),
+                const Divider(),
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'GESTÃO',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                _buildMenuItem(
+                  icon: Icons.warning,
+                  title: 'Denúncias',
+                  index: 4,
+                ),
+                _buildMenuItem(
+                  icon: Icons.people,
+                  title: 'Usuários',
+                  index: 5,
+                ),
+                _buildMenuItem(
+                  icon: Icons.settings,
+                  title: 'Configurações',
+                  index: 6,
+                ),
+              ],
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.person_outline, color: Color(0xFF663572)),
-            title: const Text('Perfil'),
-            onTap: () {
-              Navigator.of(context).pushNamed('/profile');
-            },
-          ),
-          _buildMenuItem(
-            icon: Icons.dashboard,
-            title: 'Dashboard',
-            index: 0,
-          ),
-          const Divider(),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'MODERAÇÃO',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
+          Padding(
+            padding: const EdgeInsets.only(bottom: 24.0, left: 16.0, right: 16.0, top: 8.0),
+            child: SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                icon: const Icon(Icons.exit_to_app, color: Colors.white),
+                label: const Text(
+                  'Sair',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  elevation: 0,
+                ),
+                onPressed: () async {
+                  await _authService.signOut();
+                  if (context.mounted) {
+                    Navigator.of(context).pop(); // Fecha o Drawer
+                    Navigator.of(context).pushReplacementNamed('/login');
+                  }
+                },
               ),
             ),
-          ),
-          _buildMenuItem(
-            icon: Icons.forum,
-            title: 'Fórum',
-            index: 1,
-          ),
-          _buildMenuItem(
-            icon: Icons.card_giftcard,
-            title: 'Doações',
-            index: 2,
-          ),
-          _buildMenuItem(
-            icon: Icons.comment,
-            title: 'Comentários',
-            index: 3,
-          ),
-          const Divider(),
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Text(
-              'GESTÃO',
-              style: TextStyle(
-                color: Colors.grey,
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          _buildMenuItem(
-            icon: Icons.warning,
-            title: 'Denúncias',
-            index: 4,
-          ),
-          _buildMenuItem(
-            icon: Icons.people,
-            title: 'Usuários',
-            index: 5,
-          ),
-          _buildMenuItem(
-            icon: Icons.settings,
-            title: 'Configurações',
-            index: 6,
           ),
         ],
       ),
