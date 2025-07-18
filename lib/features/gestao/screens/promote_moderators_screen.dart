@@ -1,5 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import '../../../shared/widgets/custom_app_bar.dart';
+import '../../../shared/widgets/custom_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../controllers/admin_promotion_controller.dart';
 import '../models/admin_user_model.dart';
@@ -186,54 +188,99 @@ class _PromoteModeratorsScreenState extends State<PromoteModeratorsScreen> with 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Promover Moderadores'),
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: const [
-            Tab(text: 'Moderadores'),
-            Tab(text: 'Admin Promovidos'),
-          ],
-        ),
+      appBar: CustomAppBar(
+        title: 'Promover Moderadores',
+        currentIndex: 8,
       ),
-      drawer: const Drawer(), // Substitua por CustomDrawer se necessário
+      drawer: CustomDrawer(
+        onNavigate: (index) {
+          if (index != 8) {
+            Navigator.of(context).pop();
+            Navigator.of(context).pushNamed(_getRouteForIndex(index));
+          }
+        },
+      ),
       body: _loading
           ? const Center(child: CircularProgressIndicator())
-          : TabBarView(
-              controller: _tabController,
+          : Column(
               children: [
-                // Moderadores
-                RefreshIndicator(
-                  onRefresh: _fetchLists,
-                  child: ListView.builder(
-                    itemCount: _moderators.length,
-                    itemBuilder: (context, index) {
-                      final user = _moderators[index];
-                      return _buildUserCard(
-                        user,
-                        actionLabel: 'Promover para admin',
-                        onAction: () => _promote(user.id),
-                      );
-                    },
+                Material(
+                  color: Colors.white,
+                  child: TabBar(
+                    controller: _tabController,
+                    labelColor: Theme.of(context).primaryColor,
+                    unselectedLabelColor: Colors.grey,
+                    indicatorColor: Theme.of(context).primaryColor,
+                    tabs: const [
+                      Tab(text: 'Moderadores'),
+                      Tab(text: 'Admin Promovidos'),
+                    ],
                   ),
                 ),
-                // Admin Promovidos
-                RefreshIndicator(
-                  onRefresh: _fetchLists,
-                  child: ListView.builder(
-                    itemCount: _promotedAdmins.length,
-                    itemBuilder: (context, index) {
-                      final user = _promotedAdmins[index];
-                      return _buildUserCard(
-                        user,
-                        actionLabel: 'Rebaixar para moderador',
-                        onAction: () => _demote(user.id),
-                      );
-                    },
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      // Moderadores
+                      RefreshIndicator(
+                        onRefresh: _fetchLists,
+                        child: ListView.builder(
+                          itemCount: _moderators.length,
+                          itemBuilder: (context, index) {
+                            final user = _moderators[index];
+                            return _buildUserCard(
+                              user,
+                              actionLabel: 'Promover para admin',
+                              onAction: () => _promote(user.id),
+                            );
+                          },
+                        ),
+                      ),
+                      // Admin Promovidos
+                      RefreshIndicator(
+                        onRefresh: _fetchLists,
+                        child: ListView.builder(
+                          itemCount: _promotedAdmins.length,
+                          itemBuilder: (context, index) {
+                            final user = _promotedAdmins[index];
+                            return _buildUserCard(
+                              user,
+                              actionLabel: 'Rebaixar para moderador',
+                              onAction: () => _demote(user.id),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
     );
+  }
+
+  String _getRouteForIndex(int index) {
+    switch (index) {
+      case 0:
+        return '/dashboard';
+      case 1:
+        return '/forum';
+      case 2:
+        return '/doacoes';
+      case 3:
+        return '/comentarios';
+      case 4:
+        return '/denuncias';
+      case 5:
+        return '/usuarios';
+      case 6:
+        return '/settings';
+      case 7:
+        return '/moderators_management';
+      case 8:
+        return '/promote_moderators';
+      default:
+        return '/dashboard';
+    }
   }
 }
