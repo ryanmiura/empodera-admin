@@ -153,6 +153,12 @@ class CustomDrawer extends StatelessWidget {
                 ),
                 _buildMenuItem(
                   context: context,
+                  icon: Icons.upgrade,
+                  title: 'Promover Moderadores',
+                  index: 8,
+                ),
+                _buildMenuItem(
+                  context: context,
                   icon: Icons.settings,
                   title: 'Configurações',
                   index: 6,

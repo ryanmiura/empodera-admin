@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'features/profile/screens/user_profile_screen.dart';
+import 'features/gestao/screens/promote_moderators_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -221,6 +222,7 @@ class MyApp extends StatelessWidget {
       '/login': (context) => const LoginScreen(),
       '/dashboard': (context) => const DashboardScreen(),
       '/profile': (context) => const UserProfileScreen(),
+      '/promote_moderators': (context) => const PromoteModeratorsScreen(),
     };
   }
 }

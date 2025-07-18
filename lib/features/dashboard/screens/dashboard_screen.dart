@@ -81,9 +81,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
       drawer: CustomDrawer(
         onNavigate: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          if (index == 8) {
+            Navigator.of(context).pushNamed('/promote_moderators');
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
         },
       ),
       body: body,
