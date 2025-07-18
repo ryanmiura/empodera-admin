@@ -7,6 +7,8 @@ class AdminUserModel {
   final String nome;
   final String telefone;
   final DateTime? createdAt;
+  final String role;
+  final String? promotedBy;
 
   AdminUserModel({
     required this.id,
@@ -15,6 +17,8 @@ class AdminUserModel {
     required this.nome,
     required this.telefone,
     this.createdAt,
+    required this.role,
+    this.promotedBy,
   });
 
   factory AdminUserModel.fromFirestore(DocumentSnapshot doc) {
@@ -30,6 +34,8 @@ class AdminUserModel {
               ? (data['created_at'] as Timestamp).toDate()
               : DateTime.tryParse(data['created_at'].toString()))
           : null,
+      role: data['role'] ?? '',
+      promotedBy: data.containsKey('promoted_by') ? data['promoted_by'] as String? : null,
     );
   }
 
@@ -40,6 +46,8 @@ class AdminUserModel {
       'nome': nome,
       'telefone': telefone,
       'created_at': createdAt?.toIso8601String(),
+      'role': role,
+      'promoted_by': promotedBy,
     };
   }
 }
