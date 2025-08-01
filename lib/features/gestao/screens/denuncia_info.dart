@@ -15,6 +15,65 @@ class DenunciaInfoScreen extends StatefulWidget {
 }
 
 class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
+  Widget _buildConteudoInfo(String? tipo, Map<String, dynamic> data) {
+    switch (tipo) {
+      case 'post':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _infoTile('ID', data['id'] ?? '--'),
+            _infoTile('Categoria', data['category'] ?? '--'),
+            _infoTile('Conteúdo', data['content'] ?? '--'),
+            _infoTile('Imagem', data['image'] ?? '--'),
+          ],
+        );
+      case 'donation':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _infoTile('ID', data['id'] ?? '--'),
+            _infoTile('Categoria', data['category'] ?? '--'),
+            _infoTile('Descrição', data['description'] ?? '--'),
+            _infoTile('Imagem', data['image'] ?? '--'),
+          ],
+        );
+      case 'comment':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _infoTile('ID', data['id'] ?? '--'),
+            _infoTile('Conteúdo', data['content'] ?? '--'),
+            _infoTile('Post ID', data['postId'] ?? '--'),
+            _infoTile('Usuário', data['userName'] ?? data['userId'] ?? '--'),
+            _infoTile('Data', _formatarData(data['timestamp'] as Timestamp?)),
+          ],
+        );
+      case 'donation_comment':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _infoTile('ID', data['id'] ?? '--'),
+            _infoTile('Conteúdo', data['content'] ?? '--'),
+            _infoTile('Post ID', data['postId'] ?? '--'),
+            _infoTile('Usuário', data['userName'] ?? data['userId'] ?? '--'),
+            _infoTile('Data', _formatarData(data['timestamp'] as Timestamp?)),
+          ],
+        );
+      case 'chat':
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _infoTile('ID', data['id'] ?? '--'),
+            _infoTile('Última Mensagem', data['lastMessage'] ?? '--'),
+            _infoTile('Horário da Última Mensagem', _formatarData(data['lastMessageTime'] as Timestamp?)),
+            _infoTile('Oculto', (data['oculto'] == true) ? 'Sim' : 'Não'),
+            _infoTile('Participantes', (data['userNames'] ?? (data['participants'] ?? '--')).toString()),
+          ],
+        );
+      default:
+        return const Text('Tipo de conteúdo não reconhecido');
+    }
+  }
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   Map<String, dynamic>? denunciaData;
@@ -39,15 +98,29 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
 
       final denuncia = denunciaSnapshot.data() as Map<String, dynamic>;
 
-      // Buscar dados do post denunciado
-      DocumentSnapshot postSnapshot = await _firestore
-          .collection('posts')
-          .doc(denuncia['postId'])
-          .get();
-
+      // Buscar dados do conteúdo denunciado conforme o tipo
+      String contentType = denuncia['contentType'] ?? '';
+      String contentId = denuncia['contentId'] ?? denuncia['postId'] ?? '';
+      Map<String, dynamic>? conteudoData;
+      if (contentType == 'post') {
+        DocumentSnapshot snap = await _firestore.collection('posts').doc(contentId).get();
+        conteudoData = snap.data() as Map<String, dynamic>?;
+      } else if (contentType == 'donation') {
+        DocumentSnapshot snap = await _firestore.collection('donations').doc(contentId).get();
+        conteudoData = snap.data() as Map<String, dynamic>?;
+      } else if (contentType == 'comment') {
+        DocumentSnapshot snap = await _firestore.collection('comments').doc(contentId).get();
+        conteudoData = snap.data() as Map<String, dynamic>?;
+      } else if (contentType == 'donation_comment') {
+        DocumentSnapshot snap = await _firestore.collection('donation_comments').doc(contentId).get();
+        conteudoData = snap.data() as Map<String, dynamic>?;
+      } else if (contentType == 'chat') {
+        DocumentSnapshot snap = await _firestore.collection('chats').doc(contentId).get();
+        conteudoData = snap.data() as Map<String, dynamic>?;
+      }
       setState(() {
         denunciaData = denuncia;
-        postData = postSnapshot.data() as Map<String, dynamic>?;
+        postData = conteudoData;
         isLoading = false;
       });
     } catch (e) {
@@ -98,9 +171,9 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
                 _formatarData(denunciaData!['timestamp'] as Timestamp?)),
             _infoTile('Post ID', denunciaData!['contentId']),
             const Divider(height: 32, thickness: 1),
-            const Text(
-              'Informações do Post Denunciado',
-              style: TextStyle(
+            Text(
+              'Informações do Conteúdo Denunciado',
+              style: const TextStyle(
                 fontSize: 20,
                 color: Color(0xFF663572),
                 fontWeight: FontWeight.bold,
@@ -108,24 +181,12 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
             ),
             const SizedBox(height: 12),
             postData != null
-                ? Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _infoTile('Autor', postData!['userId']),
-                _infoTile('Conteúdo',
-                    postData!['content'] ?? 'Sem conteúdo'),
-                _infoTile(
-                    'Data de Criação',
-                    _formatarData(
-                        postData!['timestamp'] as Timestamp?)),
-                _infoTile('Oculto',
-                    (postData!['oculto'] == true) ? 'Sim' : 'Não'),
-              ],
-            )
-                : const Text(
-              'O post não foi encontrado (pode ter sido excluído)',
-              style: TextStyle(color: Colors.red),
-            ),
+                ? _buildConteudoInfo(denunciaData!['contentType'], postData!)
+                : Text(
+                    'O conteúdo não foi encontrado (pode ter sido excluído)',
+                    style: const TextStyle(color: Colors.red),
+                  ),
+// Função declarada fora da lista de widgets
           ],
         ),
       ),
