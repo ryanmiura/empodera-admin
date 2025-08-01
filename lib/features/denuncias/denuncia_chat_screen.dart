@@ -76,6 +76,26 @@ class _DenunciaChatScreenState extends State<DenunciaChatScreen> {
             return ListTile(
               title: Text('Motivo: ${denuncia['motivo'] ?? '--'}'),
               subtitle: Text('Status: ${denuncia['status'] ?? '--'}'),
+              trailing: PopupMenuButton<String>(
+                onSelected: (value) {
+                  if (value == 'ver') {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => DenunciaInfoScreen(denunciaId: denuncia.id),
+                      ),
+                    );
+                  } else if (value == 'arquivar') {
+                    _firestore.collection('report').doc(denuncia.id).update({'status': 'arquivado'});
+                  } else if (value == 'resolver') {
+                    _firestore.collection('report').doc(denuncia.id).update({'status': 'resolvido'});
+                  }
+                },
+                itemBuilder: (context) => [
+                  const PopupMenuItem(value: 'ver', child: Text('Ver detalhes')),
+                  const PopupMenuItem(value: 'arquivar', child: Text('Arquivar')),
+                  const PopupMenuItem(value: 'resolver', child: Text('Resolver')),
+                ],
+              ),
               onTap: () {
                 Navigator.of(context).push(
                   MaterialPageRoute(

@@ -92,6 +92,7 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
             const SizedBox(height: 12),
             _infoTile('Motivo', denunciaData!['motivo']),
             _infoTile('Denunciante', denunciaData!['userId']),
+            _infoTile('Tipo de Denúncia', denunciaData!['contentType']),
             _infoTile('Status', denunciaData!['status']),
             _infoTile('Data',
                 _formatarData(denunciaData!['timestamp'] as Timestamp?)),
