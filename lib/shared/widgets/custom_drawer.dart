@@ -92,6 +92,59 @@ class CustomDrawer extends StatelessWidget {
                   index: 0,
                 ),
                 const Divider(),
+const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'DENÚNCIAS',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                ListTile(
+                  leading: const Icon(Icons.article, color: Color(0xFF663572)),
+                  title: const Text('Posts'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed('/denuncia_post');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.card_giftcard, color: Color(0xFF663572)),
+                  title: const Text('Doações'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed('/denuncia_doacao');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.comment, color: Color(0xFF663572)),
+                  title: const Text('Comentários em Posts'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed('/denuncia_comentario_post');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.comment_bank, color: Color(0xFF663572)),
+                  title: const Text('Comentários em Doações'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed('/denuncia_comentario_doacao');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.chat, color: Color(0xFF663572)),
+                  title: const Text('Chats'),
+                  onTap: () {
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pushNamed('/denuncia_chat');
+                  },
+                ),
+                const Divider(),
+
                 const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
@@ -122,6 +175,7 @@ class CustomDrawer extends StatelessWidget {
                   index: 3,
                 ),
                 const Divider(),
+
                 const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(

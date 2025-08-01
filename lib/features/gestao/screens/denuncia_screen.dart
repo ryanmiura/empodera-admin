@@ -144,6 +144,7 @@ class _DenunciaScreenState extends State<DenunciaScreen> {
             final data = denuncia.data() as Map<String, dynamic>;
             final postId = data['postId'];
             final status = data['status'] ?? 'pendente';
+            final contentType = data['contentType'] ?? '--';
             Color statusColor = Colors.grey;
 
             if (status == 'pendente') statusColor = Colors.orange;
@@ -180,6 +181,11 @@ class _DenunciaScreenState extends State<DenunciaScreen> {
                         ),
                       ),
                       const SizedBox(height: 8),
+                      Text(
+                        'Tipo de denúncia: $contentType',
+                        style: const TextStyle(color: Colors.black87, fontSize: 14),
+                      ),
+                      const SizedBox(height: 4),
                       Text(
                         'Motivo: ${_getFieldValue(data, 'motivo')}',
                         style: const TextStyle(color: Colors.black87, fontSize: 14),
