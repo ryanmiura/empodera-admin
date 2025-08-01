@@ -67,6 +67,7 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
             _infoTile('Conteúdo', data['content'] ?? '--'),
             _infoTile('Post ID', data['postId'] ?? '--'),
             _infoTile('Usuário', data['userName'] ?? data['userId'] ?? '--'),
+            _imagemWidget(data['userPhoto']),
             _infoTile('Data', _formatarData(data['timestamp'] as Timestamp?)),
           ],
         );
@@ -78,6 +79,7 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
             _infoTile('Conteúdo', data['content'] ?? '--'),
             _infoTile('Post ID', data['postId'] ?? '--'),
             _infoTile('Usuário', data['userName'] ?? data['userId'] ?? '--'),
+            _imagemWidget(data['userPhoto']),
             _infoTile('Data', _formatarData(data['timestamp'] as Timestamp?)),
           ],
         );
