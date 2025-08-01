@@ -14,6 +14,7 @@ class DenunciaChatScreen extends StatefulWidget {
 class _DenunciaChatScreenState extends State<DenunciaChatScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String _filtroStatus = 'todos';
+  String _filtroOrdenacao = 'denunciadas';
 
   @override
   Widget build(BuildContext context) {
@@ -26,19 +27,40 @@ class _DenunciaChatScreenState extends State<DenunciaChatScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            DropdownButton<String>(
-              value: _filtroStatus,
-              items: const [
-                DropdownMenuItem(value: 'todos', child: Text('Todas')), 
-                DropdownMenuItem(value: 'pendente', child: Text('Pendentes')),
-                DropdownMenuItem(value: 'resolvido', child: Text('Resolvidas')),
-                DropdownMenuItem(value: 'arquivado', child: Text('Arquivadas')),
+            Row(
+              children: [
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: _filtroStatus,
+                    items: const [
+                      DropdownMenuItem(value: 'todos', child: Text('Todas')),
+                      DropdownMenuItem(value: 'pendente', child: Text('Pendentes')),
+                      DropdownMenuItem(value: 'resolvido', child: Text('Resolvidas')),
+                      DropdownMenuItem(value: 'arquivado', child: Text('Arquivadas')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filtroStatus = value!;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: _filtroOrdenacao,
+                    items: const [
+                      DropdownMenuItem(value: 'recentes', child: Text('Mais recentes')),
+                      DropdownMenuItem(value: 'denunciadas', child: Text('Mais denunciadas')),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        _filtroOrdenacao = value!;
+                      });
+                    },
+                  ),
+                ),
               ],
-              onChanged: (value) {
-                setState(() {
-                  _filtroStatus = value!;
-                });
-              },
             ),
             const SizedBox(height: 16),
             Expanded(child: _buildDenunciasList()),
@@ -50,8 +72,7 @@ class _DenunciaChatScreenState extends State<DenunciaChatScreen> {
 
   Widget _buildDenunciasList() {
     Query query = _firestore.collection('report')
-      .where('contentType', isEqualTo: 'chat')
-      .orderBy('timestamp', descending: true);
+      .where('contentType', isEqualTo: 'chat');
 
     if (_filtroStatus != 'todos') {
       query = query.where('status', isEqualTo: _filtroStatus);
@@ -69,12 +90,43 @@ class _DenunciaChatScreenState extends State<DenunciaChatScreen> {
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return const Center(child: Text('Nenhuma denúncia encontrada'));
         }
+        final denuncias = snapshot.data!.docs;
+        final Map<String, int> contagemPorConteudo = {};
+        for (var d in denuncias) {
+          final cid = d['contentId'] ?? d['postId'];
+          contagemPorConteudo[cid] = (contagemPorConteudo[cid] ?? 0) + 1;
+        }
+        List<QueryDocumentSnapshot> listaOrdenada = List.from(denuncias);
+        if (_filtroOrdenacao == 'denunciadas') {
+          listaOrdenada.sort((a, b) {
+            final ca = contagemPorConteudo[a['contentId'] ?? a['postId']] ?? 0;
+            final cb = contagemPorConteudo[b['contentId'] ?? b['postId']] ?? 0;
+            return cb.compareTo(ca);
+          });
+        } else {
+          listaOrdenada.sort((a, b) {
+            final ta = a['timestamp'] as Timestamp?;
+            final tb = b['timestamp'] as Timestamp?;
+            if (ta == null || tb == null) return 0;
+            return tb.compareTo(ta);
+          });
+        }
         return ListView.builder(
-          itemCount: snapshot.data!.docs.length,
+          itemCount: listaOrdenada.length,
           itemBuilder: (context, index) {
-            final denuncia = snapshot.data!.docs[index];
+            final denuncia = listaOrdenada[index];
+            final contentId = denuncia['contentId'] ?? denuncia['postId'];
+            final count = contagemPorConteudo[contentId] ?? 1;
             return ListTile(
-              title: Text('Motivo: ${denuncia['motivo'] ?? '--'}'),
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Motivo: ${denuncia['motivo'] ?? '--'}'),
+                  const SizedBox(height: 4),
+                  Text('Total de denúncias do conteúdo: $count',
+                    style: const TextStyle(fontSize: 13, color: Colors.deepPurple)),
+                ],
+              ),
               subtitle: Text('Status: ${denuncia['status'] ?? '--'}'),
               trailing: PopupMenuButton<String>(
                 onSelected: (value) {
