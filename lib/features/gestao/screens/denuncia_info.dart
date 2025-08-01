@@ -39,24 +39,31 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _infoTile('ID', data['id'] ?? '--'),
             _infoTile('Categoria', data['category'] ?? '--'),
+            _infoTile('Título', data['title'] ?? '--'),
             _infoTile('Conteúdo', data['content'] ?? '--'),
             _imagemWidget(data['image']),
+            _infoTile('Data', _formatarData(data['timestamp'] as Timestamp?)),
           ],
         );
       case 'donation':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _infoTile('ID', data['id'] ?? '--'),
             _infoTile('Categoria', data['category'] ?? '--'),
+            _infoTile('Título', data['title'] ?? '--'),
             _infoTile('Descrição', data['description'] ?? '--'),
             _imagemWidget(data['image']),
+            _infoTile('Data', _formatarData(data['timestamp'] as Timestamp?)),
           ],
         );
       case 'comment':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _infoTile('ID', data['id'] ?? '--'),
             _infoTile('Conteúdo', data['content'] ?? '--'),
             _infoTile('Post ID', data['postId'] ?? '--'),
             _infoTile('Usuário', data['userName'] ?? data['userId'] ?? '--'),
@@ -67,6 +74,7 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _infoTile('ID', data['id'] ?? '--'),
             _infoTile('Conteúdo', data['content'] ?? '--'),
             _infoTile('Post ID', data['postId'] ?? '--'),
             _infoTile('Usuário', data['userName'] ?? data['userId'] ?? '--'),
@@ -77,6 +85,7 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            _infoTile('ID', data['id'] ?? '--'),
             _infoTile('Última Mensagem', data['lastMessage'] ?? '--'),
             _infoTile('Horário da Última Mensagem', _formatarData(data['lastMessageTime'] as Timestamp?)),
             _infoTile('Oculto', (data['oculto'] == true) ? 'Sim' : 'Não'),
@@ -118,7 +127,6 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
       if (contentType == 'post') {
         DocumentSnapshot snap = await _firestore.collection('posts').doc(contentId).get();
         conteudoData = snap.data() as Map<String, dynamic>?;
-        debugPrint('Dados do post: ${jsonEncode(conteudoData)}');
       } else if (contentType == 'donation') {
         DocumentSnapshot snap = await _firestore.collection('donations').doc(contentId).get();
         conteudoData = snap.data() as Map<String, dynamic>?;
@@ -200,6 +208,79 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
                     'O conteúdo não foi encontrado (pode ter sido excluído)',
                     style: const TextStyle(color: Colors.red),
                   ),
+            const SizedBox(height: 32),
+            if (postData != null)
+              Center(
+                child: SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    onPressed: () async {
+                      final confirm = await showDialog<bool>(
+                        context: context,
+                        builder: (ctx) => AlertDialog(
+                          title: const Text('Confirmar Exclusão'),
+                          content: const Text('Tem certeza que deseja excluir este conteúdo? Esta ação não pode ser desfeita.'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(false),
+                              child: const Text('Cancelar'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.of(ctx).pop(true),
+                              child: const Text('Excluir', style: TextStyle(color: Colors.red)),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (confirm == true) {
+                        String? collection;
+                        switch (denunciaData!['contentType']) {
+                          case 'post':
+                            collection = 'posts';
+                            break;
+                          case 'donation':
+                            collection = 'donations';
+                            break;
+                          case 'comment':
+                            collection = 'comments';
+                            break;
+                          case 'donation_comment':
+                            collection = 'donation_comments';
+                            break;
+                          case 'chat':
+                            collection = 'chats';
+                            break;
+                        }
+                        if (collection != null) {
+                          try {
+                            await _firestore.collection(collection).doc(denunciaData!['contentId']).delete();
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('Conteúdo excluído com sucesso!', style: TextStyle(color: Colors.white)), backgroundColor: Colors.red),
+                              );
+                              Navigator.of(context).pop();
+                            }
+                          } catch (e) {
+                            if (mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Erro ao excluir conteúdo: $e'), backgroundColor: Colors.red),
+                              );
+                            }
+                          }
+                        }
+                      }
+                    },
+                    child: const Text('Excluir Conteúdo', style: TextStyle(fontSize: 18, color: Colors.white)),
+                  ),
+                ),
+              ),
 // Função declarada fora da lista de widgets
           ],
         ),
