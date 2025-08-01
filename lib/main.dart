@@ -1,6 +1,11 @@
 import 'dart:async';
 import 'features/profile/screens/user_profile_screen.dart';
 import 'features/gestao/screens/promote_moderators_screen.dart';
+import 'features/gestao/screens/denuncia_post_screen.dart';
+import 'features/gestao/screens/denuncia_doacao_screen.dart';
+import 'features/gestao/screens/denuncia_comentario_post_screen.dart';
+import 'features/gestao/screens/denuncia_comentario_doacao_screen.dart';
+import 'features/gestao/screens/denuncia_chat_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -223,6 +228,11 @@ class MyApp extends StatelessWidget {
       '/dashboard': (context) => const DashboardScreen(),
       '/profile': (context) => const UserProfileScreen(),
       '/promote_moderators': (context) => const PromoteModeratorsScreen(),
+      '/denuncia_post': (context) => const DenunciaPostScreen(),
+      '/denuncia_doacao': (context) => const DenunciaDoacaoScreen(),
+      '/denuncia_comentario_post': (context) => const DenunciaComentarioPostScreen(),
+      '/denuncia_comentario_doacao': (context) => const DenunciaComentarioDoacaoScreen(),
+      '/denuncia_chat': (context) => const DenunciaChatScreen(),
     };
   }
 }
