@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import '../../../shared/widgets/custom_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -22,23 +23,46 @@ class _PromoteModeratorsScreenState extends State<PromoteModeratorsScreen> with 
   bool _loading = true;
 
   String? _currentUid;
+  String? _userRole;
+  bool _isProfileLoading = true;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _fetchCurrentUser();
+    _fetchCurrentUserAndRole();
   }
 
-  Future<void> _fetchCurrentUser() async {
+  Future<void> _fetchCurrentUserAndRole() async {
     // Usa instância já inicializada do app secundário
     final app = Firebase.app('admin-auth');
-    final uid = FirebaseAuth.instanceFor(app: app).currentUser?.uid;
+    final auth = FirebaseAuth.instanceFor(app: app);
+    final uid = auth.currentUser?.uid;
     setState(() {
       _currentUid = uid;
+      _isProfileLoading = true;
     });
+    // Busca role do usuário logado na coleção admin_users
+    if (uid != null) {
+      final doc = await FirebaseFirestore.instanceFor(app: app)
+          .collection('admin_users')
+          .doc(uid)
+          .get();
+      final data = doc.data();
+      setState(() {
+        _userRole = data != null ? data['role'] as String? : null;
+        _isProfileLoading = false;
+      });
+    } else {
+      setState(() {
+        _userRole = null;
+        _isProfileLoading = false;
+      });
+    }
     _fetchLists();
   }
+
+  // Método removido pois não é mais utilizado
 
   Future<void> _fetchLists() async {
     if (_currentUid == null) return;
@@ -200,62 +224,95 @@ class _PromoteModeratorsScreenState extends State<PromoteModeratorsScreen> with 
           }
         },
       ),
-      body: _loading
+      body: _isProfileLoading
           ? const Center(child: CircularProgressIndicator())
-          : Column(
-              children: [
-                Material(
-                  color: Colors.white,
-                  child: TabBar(
-                    controller: _tabController,
-                    labelColor: Theme.of(context).primaryColor,
-                    unselectedLabelColor: Colors.grey,
-                    indicatorColor: Theme.of(context).primaryColor,
-                    tabs: const [
-                      Tab(text: 'Moderadores'),
-                      Tab(text: 'Admin Promovidos'),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: TabBarView(
-                    controller: _tabController,
-                    children: [
-                      // Moderadores
-                      RefreshIndicator(
-                        onRefresh: _fetchLists,
-                        child: ListView.builder(
-                          itemCount: _moderators.length,
-                          itemBuilder: (context, index) {
-                            final user = _moderators[index];
-                            return _buildUserCard(
-                              user,
-                              actionLabel: 'Promover para admin',
-                              onAction: () => _promote(user.id),
-                            );
-                          },
+          : _userRole != "admin"
+              ? Center(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 40),
+                    margin: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.lock_outline,
+                          size: 64,
+                          color: Theme.of(context).colorScheme.secondary,
                         ),
-                      ),
-                      // Admin Promovidos
-                      RefreshIndicator(
-                        onRefresh: _fetchLists,
-                        child: ListView.builder(
-                          itemCount: _promotedAdmins.length,
-                          itemBuilder: (context, index) {
-                            final user = _promotedAdmins[index];
-                            return _buildUserCard(
-                              user,
-                              actionLabel: 'Rebaixar para moderador',
-                              onAction: () => _demote(user.id),
-                            );
-                          },
+                        const SizedBox(height: 32),
+                        Text(
+                          'Apenas administradores podem promover ou rebaixar moderadores.',
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            fontSize: 20,
+                            color: Theme.of(context).colorScheme.secondary,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                )
+              : _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : Column(
+                      children: [
+                        Material(
+                          color: Colors.white,
+                          child: TabBar(
+                            controller: _tabController,
+                            labelColor: Theme.of(context).primaryColor,
+                            unselectedLabelColor: Colors.grey,
+                            indicatorColor: Theme.of(context).primaryColor,
+                            tabs: const [
+                              Tab(text: 'Moderadores'),
+                              Tab(text: 'Admin Promovidos'),
+                            ],
+                          ),
+                        ),
+                        Expanded(
+                          child: TabBarView(
+                            controller: _tabController,
+                            children: [
+                              // Moderadores
+                              RefreshIndicator(
+                                onRefresh: _fetchLists,
+                                child: ListView.builder(
+                                  itemCount: _moderators.length,
+                                  itemBuilder: (context, index) {
+                                    final user = _moderators[index];
+                                    return _buildUserCard(
+                                      user,
+                                      actionLabel: 'Promover para admin',
+                                      onAction: () => _promote(user.id),
+                                    );
+                                  },
+                                ),
+                              ),
+                              // Admin Promovidos
+                              RefreshIndicator(
+                                onRefresh: _fetchLists,
+                                child: ListView.builder(
+                                  itemCount: _promotedAdmins.length,
+                                  itemBuilder: (context, index) {
+                                    final user = _promotedAdmins[index];
+                                    return _buildUserCard(
+                                      user,
+                                      actionLabel: 'Rebaixar para moderador',
+                                      onAction: () => _demote(user.id),
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
     );
   }
 
