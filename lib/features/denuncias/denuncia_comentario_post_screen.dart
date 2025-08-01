@@ -1,24 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../shared/widgets/custom_app_bar.dart';
-import '../../../shared/widgets/custom_drawer.dart';
-import 'denuncia_info.dart';
+import '../../shared/widgets/custom_app_bar.dart';
+import '../../shared/widgets/custom_drawer.dart';
+import '../gestao/screens/denuncia_info.dart';
 
-class DenunciaDoacaoScreen extends StatefulWidget {
-  const DenunciaDoacaoScreen({super.key});
+class DenunciaComentarioPostScreen extends StatefulWidget {
+  const DenunciaComentarioPostScreen({super.key});
 
   @override
-  State<DenunciaDoacaoScreen> createState() => _DenunciaDoacaoScreenState();
+  State<DenunciaComentarioPostScreen> createState() => _DenunciaComentarioPostScreenState();
 }
 
-class _DenunciaDoacaoScreenState extends State<DenunciaDoacaoScreen> {
+class _DenunciaComentarioPostScreenState extends State<DenunciaComentarioPostScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   String _filtroStatus = 'todos';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const CustomAppBar(title: 'Denúncias de Doações'),
+      appBar: const CustomAppBar(title: 'Denúncias de Comentários em Posts'),
       drawer: CustomDrawer(onNavigate: (index) {}),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -50,7 +50,7 @@ class _DenunciaDoacaoScreenState extends State<DenunciaDoacaoScreen> {
 
   Widget _buildDenunciasList() {
     Query query = _firestore.collection('report')
-      .where('contentType', isEqualTo: 'donation')
+      .where('contentType', isEqualTo: 'comment')
       .orderBy('timestamp', descending: true);
 
     if (_filtroStatus != 'todos') {

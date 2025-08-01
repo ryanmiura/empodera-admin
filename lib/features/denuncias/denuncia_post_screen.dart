@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import '../../../shared/widgets/custom_app_bar.dart';
-import '../../../shared/widgets/custom_drawer.dart';
-import 'denuncia_info.dart';
+import '../../shared/widgets/custom_app_bar.dart';
+import '../../shared/widgets/custom_drawer.dart';
+import '../gestao/screens/denuncia_info.dart';
 
 class DenunciaPostScreen extends StatefulWidget {
   const DenunciaPostScreen({super.key});
