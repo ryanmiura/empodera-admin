@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import '../../../shared/widgets/custom_app_bar.dart';
 
 class DenunciaInfoScreen extends StatefulWidget {
@@ -16,32 +17,46 @@ class DenunciaInfoScreen extends StatefulWidget {
 
 class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
   Widget _buildConteudoInfo(String? tipo, Map<String, dynamic> data) {
+    Widget _imagemWidget(String? base64) {
+      if (base64 == null || base64.isEmpty) {
+        return _infoTile('Imagem', '--');
+      }
+      try {
+        final bytes = base64Decode(base64);
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 8),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(8),
+            child: Image.memory(bytes, height: 120, fit: BoxFit.cover),
+          ),
+        );
+      } catch (e) {
+        return _infoTile('Imagem', 'Erro ao carregar imagem');
+      }
+    }
     switch (tipo) {
       case 'post':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _infoTile('ID', data['id'] ?? '--'),
             _infoTile('Categoria', data['category'] ?? '--'),
             _infoTile('Conteúdo', data['content'] ?? '--'),
-            _infoTile('Imagem', data['image'] ?? '--'),
+            _imagemWidget(data['image']),
           ],
         );
       case 'donation':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _infoTile('ID', data['id'] ?? '--'),
             _infoTile('Categoria', data['category'] ?? '--'),
             _infoTile('Descrição', data['description'] ?? '--'),
-            _infoTile('Imagem', data['image'] ?? '--'),
+            _imagemWidget(data['image']),
           ],
         );
       case 'comment':
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _infoTile('ID', data['id'] ?? '--'),
             _infoTile('Conteúdo', data['content'] ?? '--'),
             _infoTile('Post ID', data['postId'] ?? '--'),
             _infoTile('Usuário', data['userName'] ?? data['userId'] ?? '--'),
@@ -52,7 +67,6 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _infoTile('ID', data['id'] ?? '--'),
             _infoTile('Conteúdo', data['content'] ?? '--'),
             _infoTile('Post ID', data['postId'] ?? '--'),
             _infoTile('Usuário', data['userName'] ?? data['userId'] ?? '--'),
@@ -63,7 +77,6 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            _infoTile('ID', data['id'] ?? '--'),
             _infoTile('Última Mensagem', data['lastMessage'] ?? '--'),
             _infoTile('Horário da Última Mensagem', _formatarData(data['lastMessageTime'] as Timestamp?)),
             _infoTile('Oculto', (data['oculto'] == true) ? 'Sim' : 'Não'),
@@ -105,6 +118,7 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
       if (contentType == 'post') {
         DocumentSnapshot snap = await _firestore.collection('posts').doc(contentId).get();
         conteudoData = snap.data() as Map<String, dynamic>?;
+        debugPrint('Dados do post: ${jsonEncode(conteudoData)}');
       } else if (contentType == 'donation') {
         DocumentSnapshot snap = await _firestore.collection('donations').doc(contentId).get();
         conteudoData = snap.data() as Map<String, dynamic>?;
