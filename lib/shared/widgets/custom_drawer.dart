@@ -92,37 +92,7 @@ class CustomDrawer extends StatelessWidget {
                   index: 0,
                 ),
                 const Divider(),
-                const Padding(
-                  padding: EdgeInsets.all(16.0),
-                  child: Text(
-                    'MODERAÇÃO',
-                    style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-                _buildMenuItem(
-                  context: context,
-                  icon: Icons.forum,
-                  title: 'Fórum',
-                  index: 1,
-                ),
-                _buildMenuItem(
-                  context: context,
-                  icon: Icons.card_giftcard,
-                  title: 'Doações',
-                  index: 2,
-                ),
-                _buildMenuItem(
-                  context: context,
-                  icon: Icons.comment,
-                  title: 'Comentários',
-                  index: 3,
-                ),
-                const Divider(),
-                const Padding(
+const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
                     'DENÚNCIAS',
@@ -174,6 +144,38 @@ class CustomDrawer extends StatelessWidget {
                   },
                 ),
                 const Divider(),
+
+                const Padding(
+                  padding: EdgeInsets.all(16.0),
+                  child: Text(
+                    'MODERAÇÃO',
+                    style: TextStyle(
+                      color: Colors.grey,
+                      fontSize: 12,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+                _buildMenuItem(
+                  context: context,
+                  icon: Icons.forum,
+                  title: 'Fórum',
+                  index: 1,
+                ),
+                _buildMenuItem(
+                  context: context,
+                  icon: Icons.card_giftcard,
+                  title: 'Doações',
+                  index: 2,
+                ),
+                _buildMenuItem(
+                  context: context,
+                  icon: Icons.comment,
+                  title: 'Comentários',
+                  index: 3,
+                ),
+                const Divider(),
+
                 const Padding(
                   padding: EdgeInsets.all(16.0),
                   child: Text(
