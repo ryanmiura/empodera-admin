@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../services/auth_service.dart';
@@ -110,35 +109,40 @@ class DashboardHomePage extends StatelessWidget {
         'icone': Icons.article_outlined,
         'cor': Colors.purple,
         'contentType': 'post',
-        'descricao': 'Denúncias relacionadas a posts publicados na plataforma.'
+        'descricao': 'Denúncias relacionadas a posts publicados na plataforma.',
+        'tela': '/denuncia_post',
       },
       {
         'titulo': 'Doações',
         'icone': Icons.volunteer_activism_outlined,
         'cor': Colors.orange,
         'contentType': 'donation',
-        'descricao': 'Denúncias sobre doações cadastradas.'
+        'descricao': 'Denúncias sobre doações cadastradas.',
+        'tela': '/denuncia_doacao',
       },
       {
         'titulo': 'Comentários em Posts',
         'icone': Icons.comment_outlined,
         'cor': Colors.blue,
         'contentType': 'comment',
-        'descricao': 'Denúncias de comentários feitos em posts.'
+        'descricao': 'Denúncias de comentários feitos em posts.',
+        'tela': '/denuncia_comentario_post',
       },
       {
         'titulo': 'Comentários em Doações',
         'icone': Icons.chat_bubble_outline,
         'cor': Colors.green,
         'contentType': 'donation_comment',
-        'descricao': 'Denúncias de comentários feitos em doações.'
+        'descricao': 'Denúncias de comentários feitos em doações.',
+        'tela': '/denuncia_comentario_doacao',
       },
       {
         'titulo': 'Chats',
         'icone': Icons.forum_outlined,
         'cor': Colors.red,
         'contentType': 'chat',
-        'descricao': 'Denúncias de conversas privadas (chat).'
+        'descricao': 'Denúncias de conversas privadas (chat).',
+        'tela': '/denuncia_chat',
       },
     ];
 
@@ -179,12 +183,21 @@ class DashboardHomePage extends StatelessWidget {
                         final tipo = tipos[idx];
                         return ConstrainedBox(
                           constraints: const BoxConstraints(maxHeight: 260, minHeight: 180),
-                          child: _DenunciaCardFirestore(
-                            titulo: tipo['titulo'] as String,
-                            icone: tipo['icone'] as IconData,
-                            cor: tipo['cor'] as Color,
-                            contentType: tipo['contentType'] as String,
-                            descricao: tipo['descricao'] as String,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(18),
+                            onTap: () {
+                              final rota = tipo['tela'] as String?;
+                              if (rota != null) {
+                                Navigator.of(context).pushNamed(rota);
+                              }
+                            },
+                            child: _DenunciaCardFirestore(
+                              titulo: tipo['titulo'] as String,
+                              icone: tipo['icone'] as IconData,
+                              cor: tipo['cor'] as Color,
+                              contentType: tipo['contentType'] as String,
+                              descricao: tipo['descricao'] as String,
+                            ),
                           ),
                         );
                       },
