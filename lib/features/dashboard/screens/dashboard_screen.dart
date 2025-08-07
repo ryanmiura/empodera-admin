@@ -167,7 +167,16 @@ class DashboardHomePage extends StatelessWidget {
                 'Acompanhe o volume e tendências das denúncias por tipo.',
                 style: TextStyle(fontSize: 16, color: Colors.black54),
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 18),
+              const Text(
+                'Denuncias de :',
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF663572),
+                ),
+              ),
+              const SizedBox(height: 5),
               Expanded(
                 child: LayoutBuilder(
                   builder: (context, constraints) {
