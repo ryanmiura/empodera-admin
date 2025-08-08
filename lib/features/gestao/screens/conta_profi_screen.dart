@@ -40,7 +40,7 @@ class _ContaProfiScreenState extends State<ContaProfiScreen> {
 
   Widget _buildUsuariosList() {
     Query query = _firestore.collection('usuario')
-        .where('estatos', isEqualTo: _filtroAtual);
+        .where('status ', isEqualTo: _filtroAtual);
 
     return StreamBuilder<QuerySnapshot>(
       stream: query.snapshots(),
@@ -166,11 +166,11 @@ class _ContaProfiScreenState extends State<ContaProfiScreen> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
                                 decoration: BoxDecoration(
-                                  color: _getStatusColor(data['estatos']?.toString() ?? ''),
+                                  color: _getStatusColor(data['status']?.toString() ?? ''),
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Text(
-                                  data['estatos']?.toString() ?? 'Status não informado',
+                                  data['status']?.toString() ?? 'Status não informado',
                                   style: const TextStyle(
                                     color: Colors.white,
                                     fontSize: 12,
@@ -184,7 +184,7 @@ class _ContaProfiScreenState extends State<ContaProfiScreen> {
                       ],
                     ),
                     const SizedBox(height: 16),
-                    _buildBotoesAcao(usuario.id, data['estatos']?.toString() ?? ''),
+                    _buildBotoesAcao(usuario.id, data['status']?.toString() ?? ''),
                   ],
                 ),
               ),
@@ -198,7 +198,7 @@ class _ContaProfiScreenState extends State<ContaProfiScreen> {
   Future<void> _aprovarUsuario(String userId) async {
     try {
       await _firestore.collection('usuario').doc(userId).update({
-        'estatos': 'profissional aprovado',
+        'status': 'profissional aprovado',
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -215,7 +215,7 @@ class _ContaProfiScreenState extends State<ContaProfiScreen> {
   Future<void> _rejeitarUsuario(String userId) async {
     try {
       await _firestore.collection('usuario').doc(userId).update({
-        'estatos': 'profissional rejeitado',
+        'statos': 'profissional rejeitado',
       });
 
       ScaffoldMessenger.of(context).showSnackBar(

@@ -119,11 +119,11 @@ class _ContaProfiInfoScreenState extends State<ContaProfiInfoScreen> {
                                 vertical: 4,
                               ),
                               decoration: BoxDecoration(
-                                color: _getStatusColor(usuarioData!['estatos']?.toString() ?? ''),
+                                color: _getStatusColor(usuarioData!['status']?.toString() ?? ''),
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Text(
-                                usuarioData!['estatos']?.toString() ?? 'Status não informado',
+                                usuarioData!['status']?.toString() ?? 'Status não informado',
                                 style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
@@ -188,7 +188,7 @@ class _ContaProfiInfoScreenState extends State<ContaProfiInfoScreen> {
                       _infoTile('Data de Criação', _formatarData(usuarioData!['dataCriacao'] as Timestamp?)),
                       _infoTile('Última Atividade', _formatarData(usuarioData!['ultimaAtividade'] as Timestamp?)),
                       _infoTile('Tipo de Usuário', usuarioData!['tipoUsuario']?.toString()),
-                      _infoTile('Status', usuarioData!['estatos']?.toString()),
+                      _infoTile('Status', usuarioData!['status']?.toString()),
 
                       const SizedBox(height: 32),
 
@@ -295,7 +295,7 @@ class _ContaProfiInfoScreenState extends State<ContaProfiInfoScreen> {
   Future<void> _aprovarUsuario() async {
     try {
       await _firestore.collection('usuario').doc(widget.usuarioId).update({
-        'estatos': 'profissional aprovado',
+        'status': 'profissional aprovado',
       });
 
       if (mounted) {
@@ -323,7 +323,7 @@ class _ContaProfiInfoScreenState extends State<ContaProfiInfoScreen> {
   Future<void> _rejeitarUsuario() async {
     try {
       await _firestore.collection('usuario').doc(widget.usuarioId).update({
-        'estatos': 'profissional rejeitado',
+        'status': 'profissional rejeitado',
       });
 
       if (mounted) {
