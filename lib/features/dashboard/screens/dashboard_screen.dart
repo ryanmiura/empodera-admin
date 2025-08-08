@@ -350,14 +350,15 @@ class _DenunciaCardFirestore extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Icon(Icons.trending_up, size: 18, color: Colors.black45),
-                      const SizedBox(width: 4),
+                      const Icon(Icons.trending_up, size: 12, color: Colors.black45),
+                      const SizedBox(width: 2),
                       const Text(
                         'Últimos 7 dias: ',
-                        style: TextStyle(fontSize: 13, color: Colors.black54),
+                        style: TextStyle(fontSize: 10, color: Colors.black54),
                       ),
+                      const SizedBox(width: 2),
                       Text(
                         '$ultimos7dias',
                         style: TextStyle(
