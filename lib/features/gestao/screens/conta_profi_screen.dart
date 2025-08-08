@@ -40,7 +40,7 @@ class _ContaProfiScreenState extends State<ContaProfiScreen> {
 
   Widget _buildUsuariosList() {
     Query query = _firestore.collection('usuario')
-        .where('status ', isEqualTo: _filtroAtual);
+        .where('status', isEqualTo: _filtroAtual);
 
     return StreamBuilder<QuerySnapshot>(
       stream: query.snapshots(),
@@ -50,7 +50,7 @@ class _ContaProfiScreenState extends State<ContaProfiScreen> {
             child: Text('Erro ao carregar usuários: ${snapshot.error}'),
           );
         }
-        
+
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(
             child: CircularProgressIndicator(
@@ -58,7 +58,7 @@ class _ContaProfiScreenState extends State<ContaProfiScreen> {
             ),
           );
         }
-        
+
         if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
           return Center(
             child: Text(
@@ -69,13 +69,13 @@ class _ContaProfiScreenState extends State<ContaProfiScreen> {
         }
 
         final usuarios = snapshot.data!.docs;
-        
+
         return ListView.builder(
           itemCount: usuarios.length,
           itemBuilder: (context, index) {
             final usuario = usuarios[index];
             final data = usuario.data() as Map<String, dynamic>;
-            
+
             return Card(
               elevation: 2,
               margin: const EdgeInsets.symmetric(vertical: 8),
@@ -215,7 +215,7 @@ class _ContaProfiScreenState extends State<ContaProfiScreen> {
   Future<void> _rejeitarUsuario(String userId) async {
     try {
       await _firestore.collection('usuario').doc(userId).update({
-        'statos': 'profissional rejeitado',
+        'status': 'profissional rejeitado',
       });
 
       ScaffoldMessenger.of(context).showSnackBar(
