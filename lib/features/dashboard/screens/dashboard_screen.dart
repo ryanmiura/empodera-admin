@@ -11,6 +11,7 @@ import '../../moderacao/screens/forum_screen.dart';
 import '../../gestao/screens/settings.dart';
 import '../../moderacao/screens/notificacao_screen.dart';
 import '../../gestao/screens/moderators_management_screen.dart';
+import '../../gestao/screens/conta_profi_screen.dart';
 
 
 class DashboardScreen extends StatefulWidget {
@@ -58,6 +59,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         body = const ModeratorsManagementScreen();
         appBarTitle = 'Moderadores';
         break;
+      case 9:
+        body = const ContaProfiScreen();
+        appBarTitle = 'Conta Profissional';
+        break;
       default:
         body = const DashboardHomePage();
         appBarTitle = 'Dashboard';
@@ -84,6 +89,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
         onNavigate: (index) {
           if (index == 8) {
             Navigator.of(context).pushNamed('/promote_moderators');
+          } else if (index == 9) {
+            setState(() {
+              _currentIndex = index;
+            });
           } else {
             setState(() {
               _currentIndex = index;
