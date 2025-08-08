@@ -192,8 +192,8 @@ class _DenunciaInfoScreenState extends State<DenunciaInfoScreen> {
             _infoTile('Tipo de Denúncia', denunciaData!['contentType']),
             _infoTile('Status', denunciaData!['status']),
             _infoTile('Data',
-                _formatarData(denunciaData!['timestamp'] as Timestamp?)),
-            _infoTile('Post ID', denunciaData!['contentId']),
+            _formatarData(denunciaData!['timestamp'] as Timestamp?)),
+            _infoTile('Conteudo ID', denunciaData!['contentId']),
             const Divider(height: 32, thickness: 1),
             Text(
               'Informações do Conteúdo Denunciado',
