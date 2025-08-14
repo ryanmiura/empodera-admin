@@ -1,6 +1,7 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import '../../../shared/widgets/custom_drawer.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -220,7 +221,7 @@ class _PromoteModeratorsScreenState extends State<PromoteModeratorsScreen> with 
         onNavigate: (index) {
           if (index != 8) {
             Navigator.of(context).pop();
-            Navigator.of(context).pushNamed(_getRouteForIndex(index));
+            context.go(_getRouteForIndex(index));
           }
         },
       ),

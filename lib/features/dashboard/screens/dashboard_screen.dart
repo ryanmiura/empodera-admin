@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
 import '../../../services/auth_service.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import '../../../shared/widgets/custom_drawer.dart';
@@ -83,7 +84,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       drawer: CustomDrawer(
         onNavigate: (index) {
           if (index == 8) {
-            Navigator.of(context).pushNamed('/promote_moderators');
+            context.go('/promote_moderators');
           } else {
             setState(() {
               _currentIndex = index;
@@ -197,7 +198,7 @@ class DashboardHomePage extends StatelessWidget {
                             onTap: () {
                               final rota = tipo['tela'] as String?;
                               if (rota != null) {
-                                Navigator.of(context).pushNamed(rota);
+                                context.go(rota);
                               }
                             },
                             child: _DenunciaCardFirestore(

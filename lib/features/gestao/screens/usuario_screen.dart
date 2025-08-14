@@ -86,67 +86,49 @@ class _UsuarioScreenState extends State<UsuarioScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final Widget content = Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (_secondaryAppInitialized)
-                Chip(
-                  label: Text(_showSecondaryDatabase ? 'Secundário' : 'Principal'),
-                  backgroundColor: const Color(0xFF663572),
-                  labelStyle: const TextStyle(color: Colors.white),
-                ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          DropdownButton<String>(
-            value: _filtroStatus,
-            items: const [
-              DropdownMenuItem(value: 'todos', child: Text('Todos os usuários')),
-              DropdownMenuItem(value: 'aprovado', child: Text('Aprovados')),
-              DropdownMenuItem(value: 'não aprovado', child: Text('Não aprovados')),
-            ],
-            onChanged: (value) {
-              setState(() {
-                _filtroStatus = value!;
-              });
-            },
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: _showSecondaryDatabase && !_secondaryAppInitialized
-                ? _buildSecondaryAppError()
-                : _buildUsuariosList(),
-          ),
-        ],
-      ),
-    );
-    if (_secondaryAppInitialized) {
-      return Stack(
-        children: [
-          content,
-          Positioned(
-            bottom: 16,
-            right: 16,
-            child: FloatingActionButton(
-              onPressed: () {
+    return Scaffold(
+      appBar: const CustomAppBar(title: 'Usuários'),
+      drawer: CustomDrawer(onNavigate: (index) {}),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                if (_secondaryAppInitialized)
+                  Chip(
+                    label: Text(_showSecondaryDatabase ? 'Secundário' : 'Principal'),
+                    backgroundColor: const Color(0xFF663572),
+                    labelStyle: const TextStyle(color: Colors.white),
+                  ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            DropdownButton<String>(
+              value: _filtroStatus,
+              items: const [
+                DropdownMenuItem(value: 'todos', child: Text('Todos os usuários')),
+                DropdownMenuItem(value: 'aprovado', child: Text('Aprovados')),
+                DropdownMenuItem(value: 'não aprovado', child: Text('Não aprovados')),
+              ],
+              onChanged: (value) {
                 setState(() {
-                  _showSecondaryDatabase = !_showSecondaryDatabase;
+                  _filtroStatus = value!;
                 });
               },
-              child: Icon(_showSecondaryDatabase ? Icons.switch_left : Icons.switch_right),
-              backgroundColor: const Color(0xFF663572),
             ),
-          ),
-        ],
-      );
-    } else {
-      return content;
-    }
+            const SizedBox(height: 16),
+            Expanded(
+              child: _showSecondaryDatabase && !_secondaryAppInitialized
+                  ? _buildSecondaryAppError()
+                  : _buildUsuariosList(),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _buildSecondaryAppError() {
