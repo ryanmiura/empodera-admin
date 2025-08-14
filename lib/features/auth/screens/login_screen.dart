@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../services/auth_service.dart';
 import 'register_screen.dart';
 
@@ -71,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       
       if (mounted) {
-        Navigator.of(context).pushReplacementNamed('/dashboard');
+  context.go('/dashboard');
       }
     } catch (e) {
       setState(() {
