@@ -1,4 +1,5 @@
 import 'package:go_router/go_router.dart';
+import '../services/auth_service.dart';
 import '../features/auth/screens/login_screen.dart';
 import '../features/dashboard/screens/dashboard_screen.dart';
 import '../features/profile/screens/user_profile_screen.dart';
@@ -17,6 +18,19 @@ import '../features/gestao/screens/promote_moderators_screen.dart';
 import '../features/gestao/screens/settings.dart';
 final GoRouter appRouter = GoRouter(
   initialLocation: '/login',
+  redirect: (context, state) {
+    final authService = AuthService();
+  final isSignedIn = authService.isSignedIn;
+  final goingToLogin = state.uri.path == '/login';
+
+    if (!isSignedIn && !goingToLogin) {
+      return '/login';
+    }
+    if (isSignedIn && goingToLogin) {
+      return '/dashboard';
+    }
+    return null;
+  },
   routes: [
     GoRoute(
       path: '/',
@@ -87,5 +101,4 @@ final GoRouter appRouter = GoRouter(
       builder: (context, state) => const SettingsPage(),
     ),
   ],
-  // Você pode adicionar redirects, guards, etc. aqui
 );

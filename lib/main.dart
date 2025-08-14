@@ -193,7 +193,4 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  // _buildHomeScreen removido, navegação inicial agora é controlada pelo GoRouter
-
-  // Rotas agora são gerenciadas pelo GoRouter em config/app_router.dart
 }
