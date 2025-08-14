@@ -94,9 +94,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
               _currentIndex = index;
             });
           } else {
-            setState(() {
-              _currentIndex = index;
-            });
+          setState(() {
+            _currentIndex = index;
+          });
           }
         },
       ),
