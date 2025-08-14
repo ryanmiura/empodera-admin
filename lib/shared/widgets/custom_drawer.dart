@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../services/auth_service.dart';
 
 class CustomDrawer extends StatelessWidget {
@@ -29,7 +30,55 @@ class CustomDrawer extends StatelessWidget {
       ),
       onTap: () {
         Navigator.of(context).pop();
-        onNavigate(index);
+        switch (index) {
+          case 0:
+            context.push('/dashboard');
+            break;
+          case 1:
+            context.push('/forum');
+            break;
+          case 2:
+            context.push('/doacao');
+            break;
+          case 3:
+            context.push('/comentario');
+            break;
+          case 4:
+            context.push('/denuncia');
+            break;
+          case 5:
+            context.push('/usuario');
+            break;
+          case 6:
+            context.push('/settings');
+            break;
+          case 7:
+            context.push('/moderators_management');
+            break;
+          case 8:
+            context.push('/promote_moderators');
+            break;
+          case 100:
+            context.push('/profile');
+            break;
+          case 101:
+            context.push('/denuncia_post');
+            break;
+          case 102:
+            context.push('/denuncia_doacao');
+            break;
+          case 103:
+            context.push('/denuncia_comentario_post');
+            break;
+          case 104:
+            context.push('/denuncia_comentario_doacao');
+            break;
+          case 105:
+            context.push('/denuncia_chat');
+            break;
+          default:
+            if (onNavigate != null) onNavigate(index);
+        }
       },
     );
   }
@@ -82,7 +131,7 @@ class CustomDrawer extends StatelessWidget {
                   title: const Text('Perfil'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).pushNamed('/profile');
+                    context.push('/profile');
                   },
                 ),
                 _buildMenuItem(
@@ -108,7 +157,7 @@ const Padding(
                   title: const Text('Posts'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).pushNamed('/denuncia_post');
+                    context.push('/denuncia_post');
                   },
                 ),
                 ListTile(
@@ -116,7 +165,7 @@ const Padding(
                   title: const Text('Doações'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).pushNamed('/denuncia_doacao');
+                    context.push('/denuncia_doacao');
                   },
                 ),
                 ListTile(
@@ -124,7 +173,7 @@ const Padding(
                   title: const Text('Comentários em Posts'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).pushNamed('/denuncia_comentario_post');
+                    context.push('/denuncia_comentario_post');
                   },
                 ),
                 ListTile(
@@ -132,7 +181,7 @@ const Padding(
                   title: const Text('Comentários em Doações'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).pushNamed('/denuncia_comentario_doacao');
+                    context.push('/denuncia_comentario_doacao');
                   },
                 ),
                 ListTile(
@@ -140,7 +189,7 @@ const Padding(
                   title: const Text('Chats'),
                   onTap: () {
                     Navigator.of(context).pop();
-                    Navigator.of(context).pushNamed('/denuncia_chat');
+                    context.push('/denuncia_chat');
                   },
                 ),
                 const Divider(),
@@ -251,7 +300,7 @@ const Padding(
                   await _authService.signOut();
                   if (context.mounted) {
                     Navigator.of(context).pop(); // Fecha o Drawer
-                    Navigator.of(context).pushReplacementNamed('/login');
+                    context.go('/login'); // login deve ser replace
                   }
                 },
               ),

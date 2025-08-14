@@ -74,29 +74,33 @@ class _DenunciaScreenState extends State<DenunciaScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          DropdownButton<String>(
-            value: _filtroStatus,
-            items: const [
-              DropdownMenuItem(value: 'todos', child: Text('Todas denúncias')),
-              DropdownMenuItem(value: 'pendente', child: Text('Pendentes')),
-              DropdownMenuItem(value: 'resolvido', child: Text('Resolvidas')),
-              DropdownMenuItem(value: 'arquivado', child: Text('Arquivadas')),
-            ],
-            onChanged: (value) {
-              setState(() {
-                _filtroStatus = value!;
-              });
-            },
-          ),
-          const SizedBox(height: 16),
-          Expanded(child: _buildDenunciasList()),
-        ],
+    return Scaffold(
+      appBar: const CustomAppBar(title: 'Denúncias'),
+      drawer: CustomDrawer(onNavigate: (index) {}),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            DropdownButton<String>(
+              value: _filtroStatus,
+              items: const [
+                DropdownMenuItem(value: 'todos', child: Text('Todas denúncias')),
+                DropdownMenuItem(value: 'pendente', child: Text('Pendentes')),
+                DropdownMenuItem(value: 'resolvido', child: Text('Resolvidas')),
+                DropdownMenuItem(value: 'arquivado', child: Text('Arquivadas')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _filtroStatus = value!;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            Expanded(child: _buildDenunciasList()),
+          ],
+        ),
       ),
     );
   }

@@ -59,29 +59,33 @@ class _DoacaoScreenState extends State<DoacaoScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          DropdownButton<String>(
-            value: _filtroCategoria,
-            items: const [
-              DropdownMenuItem(value: 'todas', child: Text('Todas as categorias')),
-              DropdownMenuItem(value: 'Roupas', child: Text('Roupas')),
-              DropdownMenuItem(value: 'Alimentos', child: Text('Alimentos')),
-              DropdownMenuItem(value: 'Brinquedos', child: Text('Brinquedos')),
-            ],
-            onChanged: (value) {
-              setState(() {
-                _filtroCategoria = value!;
-              });
-            },
-          ),
-          const SizedBox(height: 16),
-          Expanded(child: _buildDoacoesList()),
-        ],
+    return Scaffold(
+      appBar: const CustomAppBar(title: 'Doações'),
+      drawer: CustomDrawer(onNavigate: (index) {}),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            DropdownButton<String>(
+              value: _filtroCategoria,
+              items: const [
+                DropdownMenuItem(value: 'todas', child: Text('Todas as categorias')),
+                DropdownMenuItem(value: 'Roupas', child: Text('Roupas')),
+                DropdownMenuItem(value: 'Alimentos', child: Text('Alimentos')),
+                DropdownMenuItem(value: 'Brinquedos', child: Text('Brinquedos')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _filtroCategoria = value!;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            Expanded(child: _buildDoacoesList()),
+          ],
+        ),
       ),
     );
   }

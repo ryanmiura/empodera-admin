@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:go_router/go_router.dart';
 import '../../../services/auth_service.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import '../../../shared/widgets/custom_drawer.dart';
@@ -88,8 +89,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
       drawer: CustomDrawer(
         onNavigate: (index) {
           if (index == 8) {
-            Navigator.of(context).pushNamed('/promote_moderators');
-          } else if (index == 9) {
+
+            context.go('/promote_moderators');
+          } else {
             setState(() {
               _currentIndex = index;
             });
@@ -206,7 +208,7 @@ class DashboardHomePage extends StatelessWidget {
                             onTap: () {
                               final rota = tipo['tela'] as String?;
                               if (rota != null) {
-                                Navigator.of(context).pushNamed(rota);
+                                context.go(rota);
                               }
                             },
                             child: _DenunciaCardFirestore(
@@ -359,14 +361,15 @@ class _DenunciaCardFirestore extends StatelessWidget {
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      const Icon(Icons.trending_up, size: 18, color: Colors.black45),
-                      const SizedBox(width: 4),
+                      const Icon(Icons.trending_up, size: 12, color: Colors.black45),
+                      const SizedBox(width: 2),
                       const Text(
                         'Últimos 7 dias: ',
-                        style: TextStyle(fontSize: 13, color: Colors.black54),
+                        style: TextStyle(fontSize: 10, color: Colors.black54),
                       ),
+                      const SizedBox(width: 2),
                       Text(
                         '$ultimos7dias',
                         style: TextStyle(

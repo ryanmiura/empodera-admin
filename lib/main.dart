@@ -1,19 +1,10 @@
 import 'dart:async';
-import 'features/profile/screens/user_profile_screen.dart';
-import 'features/gestao/screens/promote_moderators_screen.dart';
-import 'features/denuncias/denuncia_post_screen.dart';
-import 'features/denuncias/denuncia_doacao_screen.dart';
-import 'features/denuncias/denuncia_comentario_post_screen.dart';
-import 'features/denuncias/denuncia_comentario_doacao_screen.dart';
-import 'features/denuncias/denuncia_chat_screen.dart';
+import 'config/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:empoderaadmin/core/firebase/main_app/options.dart';
 import 'package:empoderaadmin/core/firebase/admin_auth/options.dart';
-import 'package:empoderaadmin/features/auth/screens/login_screen.dart';
-import 'package:empoderaadmin/features/dashboard/screens/dashboard_screen.dart';
-import 'package:empoderaadmin/services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -180,12 +171,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       title: 'Empodera Admin',
       debugShowCheckedModeBanner: false,
       theme: _buildThemeData(),
-      home: _buildHomeScreen(),
-      routes: _buildAppRoutes(),
+      routerConfig: appRouter,
     );
   }
 
@@ -203,36 +193,4 @@ class MyApp extends StatelessWidget {
     );
   }
 
-  Widget _buildHomeScreen() {
-    return Builder(
-      builder: (context) {
-        try {
-          final authService = AuthService();
-          return authService.isSignedIn
-              ? const DashboardScreen()
-              : const LoginScreen();
-        } catch (e) {
-          return Scaffold(
-            body: Center(
-              child: Text('Authentication check failed: $e'),
-            ),
-          );
-        }
-      },
-    );
-  }
-
-  Map<String, WidgetBuilder> _buildAppRoutes() {
-    return {
-      '/login': (context) => const LoginScreen(),
-      '/dashboard': (context) => const DashboardScreen(),
-      '/profile': (context) => const UserProfileScreen(),
-      '/promote_moderators': (context) => const PromoteModeratorsScreen(),
-      '/denuncia_post': (context) => const DenunciaPostScreen(),
-      '/denuncia_doacao': (context) => const DenunciaDoacaoScreen(),
-      '/denuncia_comentario_post': (context) => const DenunciaComentarioPostScreen(),
-      '/denuncia_comentario_doacao': (context) => const DenunciaComentarioDoacaoScreen(),
-      '/denuncia_chat': (context) => const DenunciaChatScreen(),
-    };
-  }
 }

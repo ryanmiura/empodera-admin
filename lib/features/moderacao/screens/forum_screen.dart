@@ -73,28 +73,32 @@ class _ForumScreenState extends State<ForumScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 16),
-          DropdownButton<String>(
-            value: _filtroStatus,
-            items: const [
-              DropdownMenuItem(value: 'todos', child: Text('Todos os posts')),
-              DropdownMenuItem(value: 'publicado', child: Text('Publicados')),
-              DropdownMenuItem(value: 'oculto', child: Text('Ocultos')),
-            ],
-            onChanged: (value) {
-              setState(() {
-                _filtroStatus = value!;
-              });
-            },
-          ),
-          const SizedBox(height: 16),
-          Expanded(child: _buildPostsList()),
-        ],
+    return Scaffold(
+      appBar: const CustomAppBar(title: 'Fórum'),
+      drawer: CustomDrawer(onNavigate: (index) {}),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 16),
+            DropdownButton<String>(
+              value: _filtroStatus,
+              items: const [
+                DropdownMenuItem(value: 'todos', child: Text('Todos os posts')),
+                DropdownMenuItem(value: 'publicado', child: Text('Publicados')),
+                DropdownMenuItem(value: 'oculto', child: Text('Ocultos')),
+              ],
+              onChanged: (value) {
+                setState(() {
+                  _filtroStatus = value!;
+                });
+              },
+            ),
+            const SizedBox(height: 16),
+            Expanded(child: _buildPostsList()),
+          ],
+        ),
       ),
     );
   }
