@@ -25,6 +25,9 @@ dependencies:
   # Shared Preferences
   shared_preferences: ^2.2.2
   url_launcher: ^6.1.0
+  
+  # Image Picker
+  image_picker: ^1.0.7
 
   cupertino_icons: ^1.0.8
   go_router: ^16.1.0

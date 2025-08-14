@@ -3,6 +3,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../../shared/widgets/custom_app_bar.dart';
 import '../../../shared/widgets/custom_drawer.dart';
 import 'package:flutter/services.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
 
 class DataInputFormatter extends TextInputFormatter {
   @override
@@ -42,11 +45,40 @@ class _NotificacaoScreensState extends State<NotificacaoScreens> {
   final TextEditingController _dataFinalController = TextEditingController();
   final TextEditingController _enderecoController = TextEditingController();
   final TextEditingController _linkController = TextEditingController();
+  
+  File? _imagemSelecionada;
+  String? _imagemBase64;
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _selecionarImagem() async {
+    try {
+      final XFile? imagem = await _picker.pickImage(
+        source: ImageSource.gallery,
+        maxWidth: 1024,
+        maxHeight: 1024,
+        imageQuality: 85,
+      );
+      
+      if (imagem != null) {
+        setState(() {
+          _imagemSelecionada = File(imagem.path);
+        });
+        
+        // Converter para base64
+        final bytes = await _imagemSelecionada!.readAsBytes();
+        _imagemBase64 = base64Encode(bytes);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Erro ao selecionar imagem: ${e.toString()}')),
+      );
+    }
+  }
 
   Future<void> _enviarNotificacao() async {
     if (!_formKey.currentState!.validate()) return;
     try {
-      await _firestore.collection('notifica').add({
+      final Map<String, dynamic> dadosNotificacao = {
         'nomeEvento': _nomeEventoController.text,
         'dataInicio': _dataInicioController.text,
         'dataFinal': _dataFinalController.text,
@@ -54,21 +86,38 @@ class _NotificacaoScreensState extends State<NotificacaoScreens> {
         'link': _linkController.text,
         'status': 'ativo',
         'criadoEm': FieldValue.serverTimestamp(),
-      });
+      };
+      
+      // Adicionar imagem se foi selecionada
+      if (_imagemBase64 != null) {
+        dadosNotificacao['imagem'] = _imagemBase64;
+      }
+      
+      await _firestore.collection('notifica').add(dadosNotificacao);
+      
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Notificação criada com sucesso!')),
       );
+      
       _formKey.currentState!.reset();
       _nomeEventoController.clear();
       _dataInicioController.clear();
       _dataFinalController.clear();
       _enderecoController.clear();
       _linkController.clear();
+      _limparImagem();
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Erro ao criar notificação:  [${e.toString()}')),
       );
     }
+  }
+
+  void _limparImagem() {
+    setState(() {
+      _imagemSelecionada = null;
+      _imagemBase64 = null;
+    });
   }
 
   Future<void> _atualizarStatusNotificacao(String id, String novoStatus) async {
@@ -171,6 +220,55 @@ class _NotificacaoScreensState extends State<NotificacaoScreens> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // Campo de imagem
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _selecionarImagem,
+                          icon: const Icon(Icons.image),
+                          label: const Text('Selecionar Imagem'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF663572),
+                            foregroundColor: Colors.white,
+                          ),
+                        ),
+                      ),
+                      if (_imagemSelecionada != null) ...[
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton.icon(
+                            onPressed: _limparImagem,
+                            icon: const Icon(Icons.clear),
+                            label: const Text('Remover'),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                  if (_imagemSelecionada != null) ...[
+                    const SizedBox(height: 12),
+                    Container(
+                      width: double.infinity,
+                      height: 120,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: const Color(0xFF663572)),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.file(
+                          _imagemSelecionada!,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
                   ElevatedButton(
                     onPressed: _enviarNotificacao,
                     style: ElevatedButton.styleFrom(
@@ -228,36 +326,83 @@ class _NotificacaoScreensState extends State<NotificacaoScreens> {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: ListTile(
-                title: Text(data['nomeEvento'] ?? '--'),
-                subtitle: Column(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Início: ${data['dataInicio'] ?? '--'}'),
-                    Text('Final: ${data['dataFinal'] ?? '--'}'),
-                    Text('Endereço: ${data['endereco'] ?? '--'}'),
-                    if ((data['link'] ?? '').toString().isNotEmpty)
-                      Text('Link: ${data['link']}'),
-                    Text('Status: ${data['status'] ?? 'ativo'}'),
-                  ],
-                ),
-                trailing: PopupMenuButton<String>(
-                  onSelected: (value) {
-                    if (value == 'concluido') {
-                      _atualizarStatusNotificacao(doc.id, 'concluido');
-                    } else if (value == 'expirado') {
-                      _atualizarStatusNotificacao(doc.id, 'expirado');
-                    }
-                  },
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'concluido',
-                      child: Text('Marcar como Concluído'),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                data['nomeEvento'] ?? '--',
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text('Início: ${data['dataInicio'] ?? '--'}'),
+                              Text('Final: ${data['dataFinal'] ?? '--'}'),
+                              Text('Endereço: ${data['endereco'] ?? '--'}'),
+                              if ((data['link'] ?? '').toString().isNotEmpty)
+                                Text('Link: ${data['link']}'),
+                              Text('Status: ${data['status'] ?? 'ativo'}'),
+                            ],
+                          ),
+                        ),
+                        PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'concluido') {
+                              _atualizarStatusNotificacao(doc.id, 'concluido');
+                            } else if (value == 'expirado') {
+                              _atualizarStatusNotificacao(doc.id, 'expirado');
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'concluido',
+                              child: Text('Marcar como Concluído'),
+                            ),
+                            const PopupMenuItem(
+                              value: 'expirado',
+                              child: Text('Marcar como Expirado'),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                    const PopupMenuItem(
-                      value: 'expirado',
-                      child: Text('Marcar como Expirado'),
-                    ),
+                    // Mostrar imagem se existir
+                    if (data['imagem'] != null) ...[
+                      const SizedBox(height: 12),
+                      Container(
+                        width: double.infinity,
+                        height: 120,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(8),
+                          child: Image.memory(
+                            base64Decode(data['imagem']),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              return const Center(
+                                child: Icon(
+                                  Icons.error,
+                                  color: Colors.red,
+                                  size: 40,
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),
@@ -275,6 +420,7 @@ class _NotificacaoScreensState extends State<NotificacaoScreens> {
     _dataFinalController.dispose();
     _enderecoController.dispose();
     _linkController.dispose();
+    _limparImagem();
     super.dispose();
   }
 }

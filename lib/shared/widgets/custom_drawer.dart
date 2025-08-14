@@ -250,6 +250,12 @@ const Padding(
                 ),
                 _buildMenuItem(
                   context: context,
+                  icon: Icons.person_pin,
+                  title: 'Conta Profissional',
+                  index: 9,
+                ),
+                _buildMenuItem(
+                  context: context,
                   icon: Icons.admin_panel_settings,
                   title: 'Gerenciar Moderadores',
                   index: 7,
