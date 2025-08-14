@@ -55,44 +55,49 @@ class _SettingsPageState extends State<SettingsPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              _buildOption(
-                Icons.notifications,
-                "Ativar Notificações",
-                notificationsEnabled,
-                    (value) async {
-                  await NotificationPreferences.setNotificationStatus(value);
-                  setState(() {
-                    notificationsEnabled = value;
-                  });
-                },
-              ),
-              _buildOption(
-                Icons.dark_mode,
-                "Modo Escuro",
-                darkMode,
-                    (value) {
-                  setState(() {
-                    darkMode = value;
-                  });
-                },
-              ),
-              _buildButtonOption(
-                Icons.help,
-                "Ajuda",
-                    () {
-                  _launchURL('https://empoderasolidario.sh.utfpr.edu.br/');
-                },
-              ),
-              const SizedBox(height: 20),
-              // Outras opções de configurações podem ser adicionadas aqui
-            ],
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Configurações'),
+      ),
+      body: SafeArea(
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12.0, vertical: 4.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                _buildOption(
+                  Icons.notifications,
+                  "Ativar Notificações",
+                  notificationsEnabled,
+                      (value) async {
+                    await NotificationPreferences.setNotificationStatus(value);
+                    setState(() {
+                      notificationsEnabled = value;
+                    });
+                  },
+                ),
+                _buildOption(
+                  Icons.dark_mode,
+                  "Modo Escuro",
+                  darkMode,
+                      (value) {
+                    setState(() {
+                      darkMode = value;
+                    });
+                  },
+                ),
+                _buildButtonOption(
+                  Icons.help,
+                  "Ajuda",
+                      () {
+                    _launchURL('https://empoderasolidario.sh.utfpr.edu.br/');
+                  },
+                ),
+                const SizedBox(height: 20),
+                // Outras opções de configurações podem ser adicionadas aqui
+              ],
+            ),
           ),
         ),
       ),
