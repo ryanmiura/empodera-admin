@@ -76,6 +76,9 @@ class CustomDrawer extends StatelessWidget {
           case 105:
             context.push('/denuncia_chat');
             break;
+          case 10:
+            context.push('/events');
+            break;
           default:
             if (onNavigate != null) onNavigate(index);
         }
@@ -244,6 +247,12 @@ const Padding(
                 ),
                 _buildMenuItem(
                   context: context,
+                  icon: Icons.event,
+                  title: 'Eventos',
+                  index: 10,
+                ),
+                _buildMenuItem(
+                  context: context,
                   icon: Icons.people,
                   title: 'Usuários',
                   index: 5,
@@ -310,4 +319,4 @@ const Padding(
       ),
     );
   }
-} 
+}
