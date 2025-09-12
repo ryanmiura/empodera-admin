@@ -68,6 +68,9 @@ class AuthService {
       case 'invalid-email': return 'Email inválido';
       case 'invalid-credential': return 'Credenciais inválidas';
       case 'too-many-requests': return 'Muitas tentativas. Tente mais tarde';
+      case 'auth/invalid-email': return 'Email inválido';
+      case 'auth/user-not-found': return 'Usuário não encontrado';
+      case 'auth/wrong-password': return 'Senha incorreta';
       default: return 'Erro na autenticação: ${e.message ?? e.code}';
     }
   }
@@ -89,6 +92,39 @@ class AuthService {
     } catch (e) {
       // Removido debugPrint
       rethrow;
+    }
+  }
+
+  Future<void> sendPasswordResetEmail(String email) async {
+    try {
+      if (email.isEmpty) {
+        throw 'Email é obrigatório';
+      }
+
+      // Primeiro, verifica se existe um usuário administrador com este email
+      final normalizedEmail = email.trim().toLowerCase();
+      final adminUsers = await _firestore
+          .collection('admin_users')
+          .where('email', isEqualTo: normalizedEmail)
+          .limit(1)
+          .get();
+
+      if (adminUsers.docs.isEmpty) {
+        throw 'Este email não está cadastrado como usuário administrativo';
+      }
+
+      // Verifica se o usuário está aprovado
+      final userData = adminUsers.docs.first.data();
+      final status = userData['status'] as String?;
+      if (status != 'approved') {
+        throw 'Usuário não aprovado para redefinição de senha';
+      }
+
+      await _auth.sendPasswordResetEmail(email: email.trim());
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthError(e);
+    } catch (e) {
+      throw 'Erro ao enviar email de redefinição: ${e.toString()}';
     }
   }
 }
