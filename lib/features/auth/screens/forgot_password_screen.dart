@@ -1,23 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import '../../../services/auth_service.dart';
-import 'register_screen.dart';
-import 'forgot_password_screen.dart';
 
-class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+class ForgotPasswordScreen extends StatefulWidget {
+  const ForgotPasswordScreen({super.key});
 
   @override
-  State<LoginScreen> createState() => _LoginScreenState();
+  State<ForgotPasswordScreen> createState() => _ForgotPasswordScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
+class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _passwordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
   String? _errorMessage;
+  String? _successMessage;
 
   final _buttonStyle = ElevatedButton.styleFrom(
     padding: const EdgeInsets.symmetric(vertical: 20),
@@ -26,8 +23,7 @@ class _LoginScreenState extends State<LoginScreen> {
     backgroundColor: const Color(0xFFD13B83),
   );
 
-  Widget _buildInputField(TextEditingController controller, String label,
-      {bool obscure = false}) {
+  Widget _buildInputField(TextEditingController controller, String label) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30),
       decoration: BoxDecoration(
@@ -36,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
       child: TextFormField(
         controller: controller,
-        obscureText: obscure,
         decoration: InputDecoration(
           hintText: label,
           border: InputBorder.none,
@@ -46,11 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
           if (value == null || value.isEmpty) {
             return 'Por favor, insira $label';
           }
-          if (label == 'Email' && !value.contains('@')) {
+          if (!value.contains('@')) {
             return 'Por favor, insira um email válido';
-          }
-          if (label == 'Senha' && value.length < 6) {
-            return 'A senha deve ter pelo menos 6 caracteres';
           }
           return null;
         },
@@ -58,23 +50,20 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Future<void> _handleLogin() async {
+  Future<void> _handleResetPassword() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() {
       _isLoading = true;
       _errorMessage = null;
+      _successMessage = null;
     });
 
     try {
-      await _authService.signInWithEmailAndPassword(
-        _emailController.text,
-        _passwordController.text,
-      );
-      
-      if (mounted) {
-  context.go('/dashboard');
-      }
+      await _authService.sendPasswordResetEmail(_emailController.text);
+      setState(() {
+        _successMessage = 'Email de redefinição enviado com sucesso! Verifique sua caixa de entrada.';
+      });
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
@@ -92,15 +81,23 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF1EEE2),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Color(0xFFD13B83)),
+          onPressed: () => Navigator.of(context).pop(),
+        ),
+      ),
       body: Form(
         key: _formKey,
         child: SingleChildScrollView(
           child: Column(
             children: [
-              const SizedBox(height: 80),
+              const SizedBox(height: 40),
               const Center(
                 child: Text(
-                  'ACESSO ADMINISTRATIVO',
+                  'REDEFINIR SENHA',
                   style: TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -109,14 +106,24 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
+              const SizedBox(height: 20),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 30),
+                child: Text(
+                  'Digite seu email para receber as instruções de redefinição de senha.',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black54,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+              ),
               const SizedBox(height: 40),
               Padding(
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
                     _buildInputField(_emailController, 'Email'),
-                    const SizedBox(height: 20),
-                    _buildInputField(_passwordController, 'Senha', obscure: true),
                     const SizedBox(height: 20),
                     if (_errorMessage != null)
                       Padding(
@@ -130,6 +137,18 @@ class _LoginScreenState extends State<LoginScreen> {
                           textAlign: TextAlign.center,
                         ),
                       ),
+                    if (_successMessage != null)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 10),
+                        child: Text(
+                          _successMessage!,
+                          style: const TextStyle(
+                            color: Colors.green,
+                            fontSize: 14,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     const SizedBox(height: 40),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 30),
@@ -137,7 +156,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         height: 60,
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _isLoading ? null : _handleLogin,
+                          onPressed: _isLoading ? null : _handleResetPassword,
                           style: _buttonStyle,
                           child: _isLoading
                             ? const SizedBox(
@@ -149,7 +168,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 ),
                               )
                             : const Text(
-                                'ENTRAR',
+                                'ENVIAR EMAIL',
                                 style: TextStyle(
                                   fontSize: 18,
                                   fontFamily: 'Crewniverse',
@@ -158,38 +177,6 @@ class _LoginScreenState extends State<LoginScreen> {
                                   letterSpacing: 1,
                                 ),
                               ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const ForgotPasswordScreen()),
-                        );
-                      },
-                      child: const Text(
-                        'Esqueci minha senha',
-                        style: TextStyle(
-                          color: Color(0xFFD13B83),
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (_) => const RegisterScreen()),
-                        );
-                      },
-                      child: const Text(
-                        'Criar nova conta administrativa',
-                        style: TextStyle(
-                          color: Color(0xFFD13B83),
-                          decoration: TextDecoration.underline,
                         ),
                       ),
                     ),
@@ -206,7 +193,6 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void dispose() {
     _emailController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 }
