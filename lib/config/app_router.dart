@@ -16,6 +16,8 @@ import '../features/gestao/screens/usuario_screen.dart';
 import '../features/gestao/screens/moderators_management_screen.dart';
 import '../features/gestao/screens/promote_moderators_screen.dart';
 import '../features/gestao/screens/settings.dart';
+import '../features/gestao/screens/events_screen.dart';
+
 final GoRouter appRouter = GoRouter(
   initialLocation: '/login',
   redirect: (context, state) {
@@ -99,6 +101,10 @@ final GoRouter appRouter = GoRouter(
     GoRoute(
       path: '/settings',
       builder: (context, state) => const SettingsPage(),
+    ),
+    GoRoute(
+      path: '/events',
+      builder: (context, state) => const EventsScreen(),
     ),
   ],
 );
