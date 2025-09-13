@@ -10,7 +10,7 @@
       "client_info": {
         "mobilesdk_app_id": "1:271494088121:android:c4668143e8a1f48930a268",
         "android_client_info": {
-          "package_name": "com.empodera.application"
+          "package_name": "com.empodera.admin"
         }
       },
       "oauth_client": [
@@ -18,7 +18,7 @@
           "client_id": "271494088121-6hinbaovuitrnf2uti98gde7bhbme5l7.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.empodera.application",
+            "package_name": "com.empodera.admin",
             "certificate_hash": "dd8eaf4726dd2e245e9c2c2e0c3a68e9e0918bca"
           }
         },
@@ -26,7 +26,7 @@
           "client_id": "271494088121-6tcb9sn0fc2gpl7dotom7sojbrfkbl8r.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.empodera.application",
+            "package_name": "com.empodera.admin",
             "certificate_hash": "b9bcca69c50c79d38450724c2582efdfaf56a218"
           }
         },
@@ -34,7 +34,7 @@
           "client_id": "271494088121-9j0ijj2ek76n77ahkip4e35q5o08185e.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.empodera.application",
+            "package_name": "com.empodera.admin",
             "certificate_hash": "67fd23d52b11f8e12f46cf4d68c63b7d8683405c"
           }
         },
