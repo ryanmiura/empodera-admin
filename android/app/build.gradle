@@ -24,7 +24,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.example.empoderaadmin"
+    namespace "com.empodera.admin"
     compileSdkVersion flutter.compileSdkVersion
     ndkVersion "29.0.13599879"
 
@@ -42,16 +42,25 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.empodera.application"
+        applicationId "com.empodera.admin"
         minSdkVersion flutter.minSdkVersion
         targetSdkVersion flutter.targetSdkVersion
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
 
+    signingConfigs {
+        release {
+            keyAlias localProperties.getProperty('keyAlias')
+            keyPassword localProperties.getProperty('keyPassword')
+            storeFile localProperties.getProperty('storeFile') ? file(localProperties.getProperty('storeFile')) : null
+            storePassword localProperties.getProperty('storePassword')
+        }
+    }
+
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -68,9 +77,11 @@ task copySecondaryGoogleServices(type: Copy) {
 // Configuração explícita de dependências
 tasks.whenTaskAdded { task ->
     if (task.name == 'processDebugGoogleServices' ||
+            task.name == 'processReleaseGoogleServices' ||
             task.name == 'mergeDebugAssets' ||
             task.name == 'mergeDebugShaders' ||
-            task.name == 'compileFlutterBuildDebug') {
+            task.name == 'compileFlutterBuildDebug' ||
+            task.name == 'compileFlutterBuildRelease') {
         task.mustRunAfter copySecondaryGoogleServices
     }
 }

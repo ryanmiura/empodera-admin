@@ -1,4 +1,4 @@
-package com.example.empoderaadmin
+package com.empodera.admin
 
 import io.flutter.embedding.android.FlutterActivity
 
