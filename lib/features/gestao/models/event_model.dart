@@ -6,6 +6,7 @@ class Evento {
   final String content;
   final DateTime eventDate;
   final String image; // base64
+  final String status;
   final DateTime createdAt;
 
   Evento({
@@ -14,6 +15,7 @@ class Evento {
     required this.content,
     required this.eventDate,
     required this.image,
+    this.status = 'approved',
     required this.createdAt,
   });
 
@@ -26,6 +28,7 @@ class Evento {
           ? (map['eventDate'] as Timestamp).toDate()
           : DateTime.tryParse(map['eventDate'] ?? '') ?? DateTime.now(),
       image: map['image'] ?? '',
+      status: map['status'] ?? '',
       createdAt: (map['createdAt'] is Timestamp)
           ? (map['createdAt'] as Timestamp).toDate()
           : DateTime.tryParse(map['createdAt'] ?? '') ?? DateTime.now(),
@@ -38,6 +41,7 @@ class Evento {
       'content': content,
       'eventDate': eventDate,
       'image': image,
+      'status': status,
       'createdAt': createdAt,
     };
   }

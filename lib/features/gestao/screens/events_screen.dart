@@ -49,6 +49,16 @@ class _EventsScreenState extends State<EventsScreen> {
     _fetchEvents();
   }
 
+  void _approveEvent(String id) async {
+    await _controller.approveEvent(id);
+    _fetchEvents();
+  }
+
+  void _rejectEvent(String id) async {
+    await _controller.rejectEvent(id);
+    _fetchEvents();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,7 +77,16 @@ class _EventsScreenState extends State<EventsScreen> {
                     subtitle: Text(
                       'Data:  \t${evento.eventDate.day.toString().padLeft(2, '0')}/'
                       '${evento.eventDate.month.toString().padLeft(2, '0')}/'
-                      '${evento.eventDate.year}',
+                      '${evento.eventDate.year}/'
+                      '\nStatus: ${evento.status == 'approved' ? 'Aprovado/Ativo' : evento.status == 'rejected' ? 'Rejeitado/Desativado' : 'Pendente'}',
+                      style: TextStyle(
+                        color: evento.status == 'approved'
+                            ? Colors.green
+                            : evento.status == 'rejected'
+                                ? Colors.red
+                                : Colors.orange,
+                      ),
+
                     ),
                     trailing: PopupMenuButton<String>(
                       onSelected: (value) {
@@ -75,11 +94,17 @@ class _EventsScreenState extends State<EventsScreen> {
                           _openForm(evento: evento);
                         } else if (value == 'delete') {
                           _deleteEvent(evento.id);
+                        }else if (value == 'approve') {
+                          _approveEvent(evento.id);
+                        }else if (value == 'reject') {
+                          _rejectEvent(evento.id);
                         }
                       },
                       itemBuilder: (context) => [
                         const PopupMenuItem(value: 'edit', child: Text('Editar')),
                         const PopupMenuItem(value: 'delete', child: Text('Excluir')),
+                        const PopupMenuItem(value: 'approve', child: Text('Aprovar/Ativar')),
+                        const PopupMenuItem(value: 'reject', child: Text('Rejeitar/Desativar')),
                       ],
                     ),
                   ),
