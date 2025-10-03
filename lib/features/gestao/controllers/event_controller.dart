@@ -30,4 +30,12 @@ class EventController {
   Future<void> deleteEvent(String id) async {
     await _eventsCollection.doc(id).delete();
   }
+
+  Future<void> approveEvent(String id) async {
+    await _eventsCollection.doc(id).update({'status': 'approved'});
+  }
+
+  Future<void> rejectEvent(String id) async {
+    await _eventsCollection.doc(id).update({'status': 'rejected'});
+  }
 }
